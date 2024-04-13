@@ -1,0 +1,138 @@
+body {
+    font-family: normal normal 22px/1.41em brandon-grot-w01-light, brandon-grot-w05-light, sans-serif;
+}
+
+.font_0 {
+    font: var(--font_0);
+}
+
+:root {
+    --color_0: 255, 255, 255;
+    --color_1: 0, 0, 0;
+    --color_2: 50, 111, 114;
+    --color_3: 16, 16, 16;
+    --color_4: 251, 251, 251;
+    --color_5: 227, 242, 243;
+    --color_6: 255, 255, 255;
+    --color_7: 191, 191, 191;
+    --color_8: 128, 128, 128;
+    --color_9: 64, 64, 64;
+    --color_10: 0, 0, 0;
+    --color_11: 255, 255, 255;
+    --color_12: 191, 191, 191;
+    --color_13: 128, 128, 128;
+    --color_14: 64, 64, 64;
+    --color_15: 0, 0, 0;
+    --color_16: 175, 218, 220;
+    --color_17: 95, 180, 185;
+    --color_18: 50, 111, 114;
+    --color_19: 33, 74, 76;
+    --color_20: 17, 37, 38;
+    --color_21: 207, 207, 207;
+    --color_22: 159, 159, 159;
+    --color_23: 112, 112, 112;
+    --color_24: 64, 64, 64;
+    --color_25: 16, 16, 16;
+    --color_26: 253, 253, 253;
+    --color_27: 251, 251, 251;
+    --color_28: 188, 188, 188;
+    --color_29: 126, 126, 126;
+    --color_30: 63, 63, 63;
+    --color_31: 241, 248, 249;
+    --color_32: 227, 242, 243;
+    --color_33: 145, 204, 208;
+    --color_34: 71, 159, 164;
+    --color_35: 35, 79, 82;
+    --color_36: 255, 255, 255;
+    --color_37: 0, 0, 0;
+    --color_38: 191, 191, 191;
+    --color_39: 128, 128, 128;
+    --color_40: 64, 64, 64;
+    --color_41: 50, 111, 114;
+    --color_42: 0, 0, 0;
+    --color_43: 128, 128, 128;
+    --color_44: 255, 255, 255;
+    --color_45: 0, 0, 0;
+    --color_46: 0, 0, 0;
+    --color_47: 64, 64, 64;
+    --color_48: 50, 111, 114;
+    --color_49: 50, 111, 114;
+    --color_50: 255, 255, 255;
+    --color_51: 255, 255, 255;
+    --color_52: 50, 111, 114;
+    --color_53: 50, 111, 114;
+    --color_54: 128, 128, 128;
+    --color_55: 128, 128, 128;
+    --color_56: 255, 255, 255;
+    --color_57: 255, 255, 255;
+    --color_58: 50, 111, 114;
+    --color_59: 50, 111, 114;
+    --color_60: 50, 111, 114;
+    --color_61: 50, 111, 114;
+    --color_62: 255, 255, 255;
+    --color_63: 255, 255, 255;
+    --color_64: 128, 128, 128;
+    --color_65: 128, 128, 128;
+
+    --font_0: normal normal normal 22px/1.41em brandon-grot-w01-light, brandon-grot-w05-light, sans-serif;
+    --font_1: normal normal normal 14px/1.79em avenir-lt-w01_35-light1475496, avenir-lt-w05_35-light, sans-serif;
+    --font_2: normal normal normal 28px/1.375em brandon-grot-w01-light, brandon-grot-w05-light, sans-serif;
+    --font_3: normal normal normal 88px/1.2em brandon-grot-w01-light, brandon-grot-w05-light, sans-serif;
+    --font_4: normal normal normal 72px/1.25em brandon-grot-w01-light, brandon-grot-w05-light, sans-serif;
+    --font_5: normal normal normal 50px/1.34em brandon-grot-w01-light, brandon-grot-w05-light, sans-serif;
+    --font_6: normal normal normal 40px/1.35em brandon-grot-w01-light, brandon-grot-w05-light, sans-serif;
+    --font_7: normal normal normal 20px/1.67em avenir-lt-w01_35-light1475496, avenir-lt-w05_35-light, sans-serif;
+    --font_8: normal normal normal 18px/1.75em avenir-lt-w01_35-light1475496, avenir-lt-w05_35-light, sans-serif;
+    --font_9: normal normal normal 15px/1.875em avenir-lt-w01_35-light1475496, avenir-lt-w05_35-light, sans-serif;
+    --font_10: normal normal normal 14px/1.79em avenir-lt-w01_35-light1475496, avenir-lt-w05_35-light, sans-serif;
+}
+
+.text-link {
+    text-decoration: underline 0.2rem;
+    padding: 3px;
+    transition: color 0.2s ease-in-out;
+}
+
+.text-link:hover {
+    color: #333;
+}
+
+.header {
+    font: var(--font_4);
+}
+
+.subhero-text {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.constrain-content {
+    max-width: 780px;
+}
+
+.text-body {
+    font-size: 20px;
+    max-width: 780px;
+    margin: auto;
+}
+
+section {
+    line-height: 1.67em;
+    text-align: center;
+}
+
+.darker-bg {
+    background-color: rgb(251, 251, 251);
+}
+
+.section-padding {
+    padding-top: 86px;
+}
+
+.section-pb {
+    padding-bottom: 48px;
+}
+
+.spacer {
+    line-height: 1.67em;
+}
