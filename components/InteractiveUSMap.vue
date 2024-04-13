@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="map-wrapper">
       <svg
         class="svg-map"
         @click="stateClicked"
@@ -166,11 +166,13 @@
     border-radius: 10px;
     z-index: 100;
   }
+
   .color-picker {
     display: flex;
     gap: 14px;
     padding: 16px;
   }
+
   .color {
     border-radius: 4px;
     border: 1px solid #999;
@@ -180,8 +182,9 @@
   }
 
   .svg-map {
-    width: 100%;
+    width: 1000px;
     height: 589px;
+    display: inline-block;
     /* viewBox="0 0 1000 589" */
   }
   </style>
