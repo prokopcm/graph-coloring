@@ -3,6 +3,7 @@
         <AppMenu selected="home" />
         <div class="content">
             <section class="introduction darker-bg section-pb">
+                <div class="intro">Click/tap on a state to color it!</div>
                 <InteractiveUSMap />
                 <div class="button-wrapper">
                     <LinkButton to="/about">Learn more about how this works</LinkButton>
@@ -27,6 +28,10 @@ picture img {
 .hero-wrapper {
     max-width: max(640px, 100%);
     position: relative;
+}
+
+.intro {
+    font-style: italic;
 }
 
 .overlay-text {

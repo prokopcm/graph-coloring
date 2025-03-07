@@ -3,7 +3,7 @@
         <p class="font_0 header-hero">
             <NuxtLink to="/">
                 <span class="color_15 sm:m-4 md:m-4">
-                    Coloring Maps, Creative Math, and Computers
+                    Coloring, Creative Math, and Computers
                 </span>
             </NuxtLink>
         </p>
@@ -38,7 +38,7 @@ function getLinkStyle(link) {
 
 <style>
 .site-header {
-    height: 100px;
+    height: 60px;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 1;

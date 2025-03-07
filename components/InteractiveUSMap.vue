@@ -115,7 +115,11 @@
           if (this.selectedState && this.selectedState.id !== stateElement.id) {
             this.selectedState.style.fill = this.stateColors[this.selectedState.id] || '#FFFFFF'
           }
-          this.clickX = event.clientX - 150
+
+          // get page with
+          const pageWidth = document.querySelector('.map-wrapper').offsetWidth
+
+          this.clickX = Math.min(event.clientX - 150, pageWidth - 420)
           this.clickY = event.clientY + 50
           this.selectedState = stateElement
           this.showColorPicker = true
