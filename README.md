@@ -1,6 +1,6 @@
-# Nuxt 3 Minimal Starter
+# Coloring Maps, Creative Math, and Computers
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A digital companion project to a presentation on graph coloring for the MSU Science Festival.
 
 ## Setup
 
@@ -71,5 +71,3 @@ yarn preview
 # bun
 bun run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
