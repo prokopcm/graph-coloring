@@ -1,3 +1,30 @@
+<script>
+  export default {
+    data() {
+      return {
+        selectedState: null,
+        showColorPicker: false,
+        colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000', '#FFFFFF']
+      }
+    },
+    methods: {
+      stateClicked(event) {
+        const stateElement = event.target;
+        if(stateElement.tagName === 'path' && stateElement.id) {
+          this.selectedState = stateElement;
+          this.showColorPicker = true;
+        }
+      },
+      setColor(color) {
+        if(this.selectedState) {
+          this.selectedState.style.fill = color;
+        }
+        this.showColorPicker = false;
+      }
+    }
+  }
+</script>
+
 <template>
     <div>
       <svg
@@ -372,36 +399,9 @@
           class="color"></div>
       </div>
     </div>
-  </template>
+</template>
   
-  <script>
-  export default {
-    data() {
-      return {
-        selectedState: null,
-        showColorPicker: false,
-        colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000', '#FFFFFF']
-      }
-    },
-    methods: {
-      stateClicked(event) {
-        const stateElement = event.target;
-        if(stateElement.tagName === 'path' && stateElement.id) {
-          this.selectedState = stateElement;
-          this.showColorPicker = true;
-        }
-      },
-      setColor(color) {
-        if(this.selectedState) {
-          this.selectedState.style.fill = color;
-        }
-        this.showColorPicker = false;
-      }
-    }
-  }
-  </script>
-  
-  <style scoped>
+<style scoped>
   .color-picker {
     display: flex;
     gap: 10px;
@@ -412,4 +412,4 @@
     height: 30px;
     cursor: pointer;
   }
-  </style>
+</style>

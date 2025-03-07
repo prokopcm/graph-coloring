@@ -1,3 +1,11 @@
+<script setup lang="ts">
+const props = defineProps({ 'selected': String })
+
+function getLinkStyle(link: string) {
+    return link === props.selected ? 'text-link' : 'unselected'
+}
+</script>
+
 <template>
     <div class="site-header flex justify-between" tabindex="-1">
         <p class="font_0 header-hero">
@@ -27,14 +35,6 @@
         </nav>
     </div>
 </template>
-
-<script setup>
-const props = defineProps({ 'selected': String })
-
-function getLinkStyle(link) {
-    return link === props.selected ? 'text-link' : 'unselected'
-}
-</script>
 
 <style>
 .site-header {

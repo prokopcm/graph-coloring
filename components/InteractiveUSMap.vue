@@ -1,43 +1,4 @@
-<template>
-    <div class="map-wrapper">
-      <svg
-        class="svg-map"
-        @click="stateClicked"
-        xmlns="http://www.w3.org/2000/svg"
-        style="stroke-linejoin: round; stroke: #000; fill: none; cursor: pointer;">
-        <path
-            v-for="state in mapData"
-            :key="state.id"
-            :id="state.id"
-            :d="state.d"
-            @mouseenter="mouseOverState"
-            @mouseout="mouseOutState"
-        />
-      </svg>
-      <div
-        v-if="showColorPicker"
-        class="color-picker-container"
-        :style="{ top: clickY + 'px', left: clickX + 'px'}"  
-      >
-        <div class="color-picker">
-          <div
-            v-for="color in colors"
-            :key="color"
-            @click="setColor(color)"
-            :style="{ backgroundColor: color }"
-            class="color"></div>
-        </div>
-      </div>
-      <div>
-        <div class="button-wrapper mb-4">
-          <button class="link-button" @click="resetStateColors">Reset</button>
-        </div>
-        
-      </div>
-    </div>
-  </template>
-  
-  <script>
+<script>
   import { mapData } from '~/data/mapData.ts'
 
   function processMapData(mapData) {
@@ -157,9 +118,49 @@
       }
     }
   }
-  </script>
+</script>
+
+<template>
+  <div class="map-wrapper">
+    <svg
+      class="svg-map"
+      @click="stateClicked"
+      xmlns="http://www.w3.org/2000/svg"
+      style="stroke-linejoin: round; stroke: #000; fill: none; cursor: pointer;">
+      <path
+          v-for="state in mapData"
+          :key="state.id"
+          :id="state.id"
+          :d="state.d"
+          @mouseenter="mouseOverState"
+          @mouseout="mouseOutState"
+      />
+    </svg>
+    <div
+      v-if="showColorPicker"
+      class="color-picker-container"
+      :style="{ top: clickY + 'px', left: clickX + 'px'}"  
+    >
+      <div class="color-picker">
+        <div
+          v-for="color in colors"
+          :key="color"
+          @click="setColor(color)"
+          :style="{ backgroundColor: color }"
+          class="color"></div>
+      </div>
+    </div>
+    <div>
+      <div class="button-wrapper mb-4">
+        <button class="link-button" @click="resetStateColors">Reset</button>
+      </div>
+      
+    </div>
+  </div>
+</template>
+
   
-  <style scoped>
+<style scoped>
   .color-picker-container {
     position: absolute;
     top: 0;
@@ -191,4 +192,4 @@
     display: inline-block;
     /* viewBox="0 0 1000 589" */
   }
-  </style>
+</style>
