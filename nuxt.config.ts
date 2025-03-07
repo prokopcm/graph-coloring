@@ -4,8 +4,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss'],
   ssr: true,
+
   app: {
     baseURL: '/projects/msu24',
     // buildAssetsDir: '/projects/msu24/_nuxt/',
-  }
+  },
+
+  compatibilityDate: '2025-03-07'
 })
