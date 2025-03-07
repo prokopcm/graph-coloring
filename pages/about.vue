@@ -23,14 +23,15 @@
                     <p class="text-body">
                         Graph coloring can be thought of a <b>constraint satisfaction problem</b>. A computer solves this problem by simply following a list of steps, like following a recipe in a cookbook. This list of steps is called an algorithm.
                         Here are some steps taken from real algorithms to help you think like a computer:
-                        <ul>
-                            <li>Start with a state that touch lots of other states first. They are tricky to color in if
-                            other nearby states have already been colored in first.</li>
-                            <li>Don't add another color unless you have to. Reuse colors as often as possible.</li>
-                            <li>Color in states that have fewer color options left to choose from before coloring in
-                            states that have more colors left to choose from.</li>
-                        </ul>
                     </p>
+                    <ul class="algorithm-steps list-inside list-disc">
+                        <li>Start with a state that touch lots of other states first. They are tricky to color in if
+                        other nearby states have already been colored in first.</li>
+                        <li>Don't add another color unless you have to. Reuse colors as often as possible.</li>
+                        <li>Color in states that have fewer color options left to choose from before coloring in
+                        states that have more colors left to choose from.</li>
+                    </ul>
+                    
 
                     <div class="spacer"><span>​</span></div>
                     <p class="subhero-text">Applications</p>
@@ -108,7 +109,7 @@ a {
     border-radius: 4px;
 }
 
-ul {
+.algorithm-steps {
     text-align: left;
     list-style-type: disc;
     margin: auto;
