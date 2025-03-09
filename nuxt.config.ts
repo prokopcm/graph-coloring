@@ -6,8 +6,7 @@ export default defineNuxtConfig({
   ssr: true,
 
   app: {
-    baseURL: '/projects/msu24',
-    // buildAssetsDir: '/projects/msu24/_nuxt/',
+    baseURL: '/projects/coloring-maps',
   },
 
   compatibilityDate: '2025-03-07'
