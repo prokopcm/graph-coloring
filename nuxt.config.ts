@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   ssr: true,
 
   app: {
-    baseURL: '/projects/coloring-maps',
+    baseURL: '/projects/coloringmaps',
   },
 
   compatibilityDate: '2025-03-07'
