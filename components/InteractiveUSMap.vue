@@ -10,8 +10,8 @@
   const selectedState = ref<HTMLElement | null>(null)
   const showColorPicker = ref(false)
   const colors = ref(['#FF6E6E', '#6E9EFF', '#6EFF98', '#FFFA6E', '#FF6EFF', '#FFA64D', '#6EFFFF', '#FFFFFF'])
-  const clickX = ref(0)
-  const clickY = ref(0)
+  const colorPickerX = ref(0)
+  const colorPickerY = ref(0)
 
   onMounted(() => {
     resetStateColors()
@@ -69,13 +69,23 @@
       const mapWrapper = document.querySelector('.map-wrapper') as HTMLElement
       const pageWidth = mapWrapper.offsetWidth
 
-      clickX.value = Math.min(event.clientX - 150, pageWidth - 420)
-      clickY.value = event.clientY + 50
+      colorPickerX.value = Math.min(event.clientX - 150, pageWidth - 420)
+      colorPickerY.value = event.clientY + 50
       selectedState.value = stateElement
-      showColorPicker.value = true
-      selectedState.value.style.fill = '#CCFFEE'
+      toggleColorPicker(true)
     } else {
-      showColorPicker.value = false
+      toggleColorPicker(false)
+    }
+  }
+
+  function toggleColorPicker (show: boolean) {
+    console.log('toggleColorPicker', show)
+    showColorPicker.value = show
+    if (show) {
+      if (selectedState.value) {
+        selectedState.value.style.fill = '#CCFFEE'
+      }
+    } else {
       if (selectedState.value) {
         selectedState.value.style.fill = stateColors.value[selectedState.value.id] || '#FFFFFF'
         selectedState.value = null
@@ -106,13 +116,19 @@
 
     showColorPicker.value = false
   }
+
+  function mapWrapperClicked (event: MouseEvent) {
+    if (event.target instanceof HTMLElement && event.target.tagName.toLowerCase() === 'div') {
+      toggleColorPicker(false)
+    }
+  }
 </script>
 
 <template>
-  <div class="map-wrapper">
+  <div class="map-wrapper" @click="mapWrapperClicked">
     <svg
       class="svg-map"
-      @click="stateClicked"
+      @click.prevent="stateClicked"
       xmlns="http://www.w3.org/2000/svg"
       style="stroke-linejoin: round; stroke: #000; fill: none; cursor: pointer;">
       <path
@@ -127,20 +143,20 @@
     <div
       v-if="showColorPicker"
       class="color-picker-container"
-      :style="{ top: clickY + 'px', left: clickX + 'px'}"  
+      :style="{ top: colorPickerY + 'px', left: colorPickerX + 'px'}"  
     >
       <div class="color-picker">
         <div
           v-for="color in colors"
           :key="color"
-          @click="setColor(color)"
+          @click.prevent="setColor(color)"
           :style="{ backgroundColor: color }"
           class="color"></div>
       </div>
     </div>
     <div>
       <div class="button-wrapper mb-4">
-        <button class="link-button" @click="resetStateColors">Reset</button>
+        <button class="link-button" @click.prevent="resetStateColors">Reset</button>
       </div>
       
     </div>
