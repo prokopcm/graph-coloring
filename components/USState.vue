@@ -1,28 +1,26 @@
-<script>
-  export default {
-    data() {
-      return {
-        selectedState: null,
-        showColorPicker: false,
-        colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000', '#FFFFFF']
-      }
-    },
-    methods: {
-      stateClicked(event) {
-        const stateElement = event.target;
-        if(stateElement.tagName === 'path' && stateElement.id) {
-          this.selectedState = stateElement;
-          this.showColorPicker = true;
-        }
-      },
-      setColor(color) {
-        if(this.selectedState) {
-          this.selectedState.style.fill = color;
-        }
-        this.showColorPicker = false;
-      }
-    }
+<script setup lang="ts">
+import { ref } from 'vue';
+
+type StateElement = HTMLElement & SVGPathElement;
+
+const selectedState = ref<StateElement | null>(null);
+const showColorPicker = ref<boolean>(false);
+const colors = ref<string[]>(['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000', '#FFFFFF']);
+
+function stateClicked (event: MouseEvent) {
+  const stateElement = event.target as StateElement;
+  if (stateElement.tagName === 'path' && stateElement.id) {
+    selectedState.value = stateElement;
+    showColorPicker.value = true;
   }
+};
+
+function setColor (color: string) {
+  if (selectedState.value) {
+    selectedState.value.style.fill = color
+  }
+  showColorPicker.value = false;
+};
 </script>
 
 <template>

@@ -1,122 +1,110 @@
-<script>
-  import { mapData } from '~/data/mapData.ts'
+<script setup lang="ts">
+  import { ref, onMounted } from 'vue'
+  import { mapData } from '~/data/mapData'
 
-  function processMapData(mapData) {
-    const elMap = {}
-    // mapData.forEach(state => {
-    //   stateColors[state.id] = 
-    // })
-    return elMap
+  interface StateColors {
+    [key: string]: string;
   }
 
+  const stateColors = ref<StateColors>({})
+  const selectedState = ref<HTMLElement | null>(null)
+  const showColorPicker = ref(false)
+  const colors = ref(['#FF6E6E', '#6E9EFF', '#6EFF98', '#FFFA6E', '#FF6EFF', '#FFA64D', '#6EFFFF', '#FFFFFF'])
+  const clickX = ref(0)
+  const clickY = ref(0)
 
-  export default {
-    mounted () {
-      this.resetStateColors()
-    },
+  onMounted(() => {
+    resetStateColors()
+  })
 
-    data() {
-      return {
-        mapData,
-        stateColors: {},
-        selectedState: null,
-        showColorPicker: false,
-        colors: ['#FF6E6E', '#6E9EFF', '#6EFF98', '#FFFA6E', '#FF6EFF', '#FFA64D', '#6EFFFF', '#FFFFFF'],
-        clickX: 0,
-        clickY: 0
+  function changeFillColor (event: MouseEvent) {
+    const stateElement = event.target as HTMLElement
+
+    if (stateElement.tagName === 'path' && stateElement.id) {
+      stateElement.style.fill = '#CCFFEE'
+      stateColors.value[stateElement.id] = stateElement.style.fill
+    }
+  }
+
+  function mouseOverState (event: MouseEvent) {
+    const stateElement = event.target as HTMLElement
+
+    if (stateElement.tagName === 'path' && stateElement.id && !stateColors.value[stateElement.id]) {
+      stateElement.style.fill = '#CCFFEE'
+    }
+  }
+  
+  function mouseOutState (event: MouseEvent) {
+    const stateElement = event.target as HTMLElement
+
+    if (stateElement.tagName === 'path' && stateElement.id) {
+      if (selectedState.value && selectedState.value.id === stateElement.id) {
+        return
       }
-    },
+      if (stateColors.value[stateElement.id]) {
+        stateElement.style.fill = stateColors.value[stateElement.id]
+        return
+      }
+      stateElement.style.fill = '#FFFFFF'
+    }
+  }
+
+  function resetFillColor (event: MouseEvent) {
+    const stateElement = event.target as HTMLElement
+
+    if (stateElement.tagName === 'path' && stateElement.id) {
+      stateElement.style.fill = '#FFFFFF'
+    }
+  }
+
+  function stateClicked (event: MouseEvent) {
+    const stateElement = event.target as HTMLElement
     
-    methods: {
-      changeFillColor (event) {
-        const stateElement = event.target
+    if (stateElement.tagName === 'path' && stateElement.id) {
+      if (selectedState.value && selectedState.value.id !== stateElement.id) {
+        selectedState.value.style.fill = stateColors.value[selectedState.value.id] || '#FFFFFF'
+      }
 
-        if (stateElement.tagName === 'path' && stateElement.id) {
-          stateElement.style.fill = '#CCFFEE'
-          this.stateColors[stateElement.id] = stateElement.style.fill
-        }
-      },
+      // get page width
+      const mapWrapper = document.querySelector('.map-wrapper') as HTMLElement
+      const pageWidth = mapWrapper.offsetWidth
 
-      mouseOverState (event) {
-        const stateElement = event.target
-
-        if (stateElement.tagName === 'path' && stateElement.id && !this.stateColors[stateElement.id]) {
-          stateElement.style.fill = '#CCFFEE'
-        }
-      },
-      
-      mouseOutState (event) {
-        const stateElement = event.target
-
-        if (stateElement.tagName === 'path' && stateElement.id) {
-          if (this.selectedState && this.selectedState.id === stateElement.id) {
-            return
-          }
-          if (this.stateColors[stateElement.id]) {
-            stateElement.style.fill = this.stateColors[stateElement.id]
-            return
-          }
-          stateElement.style.fill = '#FFFFFF'
-        }
-      },
-
-      resetFillColor (event) {
-        const stateElement = event.target
-
-        if (stateElement.tagName === 'path' && stateElement.id) {
-          stateElement.style.fill = '#FFFFFF'
-        }
-      },
-
-      stateClicked (event) {
-        const stateElement = event.target
-        
-        console.log(event)
-        if (stateElement.tagName === 'path' && stateElement.id) {
-          if (this.selectedState && this.selectedState.id !== stateElement.id) {
-            this.selectedState.style.fill = this.stateColors[this.selectedState.id] || '#FFFFFF'
-          }
-
-          // get page with
-          const pageWidth = document.querySelector('.map-wrapper').offsetWidth
-
-          this.clickX = Math.min(event.clientX - 150, pageWidth - 420)
-          this.clickY = event.clientY + 50
-          this.selectedState = stateElement
-          this.showColorPicker = true
-          this.selectedState.style.fill = '#CCFFEE'
-          // stateElement.style.fill = 
-        } else {
-          this.showColorPicker = false
-          this.selectedState.style.fill = this.stateColors[this.selectedState.id] || '#FFFFFF'
-          this.selectedState = null
-        }
-      },
-
-      resetStateColors () {
-        this.stateColors = {}
-        this.selectedState = null
-        this.showColorPicker = false
-        
-        // loop through each <path> element and reset the fill style
-        for (const stateInfo of this.mapData) {
-          const stateId = stateInfo.id
-          const stateElement = document.getElementById(stateId)
-          stateElement.style.fill = '#FFFFFF'
-        }
-
-        
-      },
-      
-      setColor (color) {
-        if(this.selectedState) {
-          this.selectedState.style.fill = color
-          this.stateColors[this.selectedState.id] = color
-        }
-
-        this.showColorPicker = false
+      clickX.value = Math.min(event.clientX - 150, pageWidth - 420)
+      clickY.value = event.clientY + 50
+      selectedState.value = stateElement
+      showColorPicker.value = true
+      selectedState.value.style.fill = '#CCFFEE'
+    } else {
+      showColorPicker.value = false
+      if (selectedState.value) {
+        selectedState.value.style.fill = stateColors.value[selectedState.value.id] || '#FFFFFF'
+        selectedState.value = null
       }
     }
+  }
+
+  function resetStateColors () {
+    stateColors.value = {}
+    selectedState.value = null
+    showColorPicker.value = false
+    
+    // loop through each <path> element and reset the fill style
+    for (const stateInfo of mapData) {
+      const stateId = stateInfo.id
+      const stateElement = document.getElementById(stateId)
+      if (stateElement) {
+        stateElement.style.fill = '#FFFFFF'
+      }
+    }
+  }
+  
+  function setColor (color: string) {
+    if (selectedState.value) {
+      selectedState.value.style.fill = color
+      stateColors.value[selectedState.value.id] = color
+    }
+
+    showColorPicker.value = false
   }
 </script>
 
