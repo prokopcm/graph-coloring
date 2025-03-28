@@ -152,7 +152,7 @@
   function mouseOverState (event: MouseEvent) {
     const stateElement = event.target as HTMLElement
 
-    if (stateElement.tagName === 'path' && stateElement.id && !stateColors.value[stateElement.id]) {
+    if (stateElement.tagName === 'path' && stateElement.id && stateColors.value[stateElement.id] === '#FFFFFF') {
       mouseoverState.value = stateElement
     }
   }
@@ -205,6 +205,7 @@
   }
 
   function toggleColorPicker (show: boolean) {
+    console.log('toggleColorPicker', show)
     showColorPicker.value = show
 
     if (show) {
@@ -215,6 +216,10 @@
       if (selectedState.value) {
         selectedState.value.style.fill = stateColors.value[selectedState.value.id] || '#FFFFFF'
         selectedState.value = null
+      }
+
+      if (mouseoverState.value) {
+        mouseoverState.value = null
       }
     }
   }
@@ -263,7 +268,7 @@
       stateColors.value[selectedState.value.id] = color
     }
 
-    showColorPicker.value = false
+    toggleColorPicker(false)
   }
 
   function mapWrapperClicked (event: MouseEvent) {
