@@ -286,10 +286,6 @@ interface GraphInterface {
   [key: string]: StateNode;
 }
 
-interface StateNames {
-  [key: string]: string
-}
-
 const graph = {
   AL: { name: "AL", neighbors: ["FL", "GA", "MS", "TN"] },
   AK: { name: "AK", neighbors: [] },
