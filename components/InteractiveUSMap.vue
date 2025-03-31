@@ -408,9 +408,13 @@ function neighborsWithSameColor(graphState: StateNode): Array<{ name: string; co
       .map(function (neighbor) {
         const stateElement = document.getElementById(graphState.name);
         const neighborElement = document.getElementById(neighbor);
+        console.log(stateElement!.style.fill)
+        console.log(neighborElement!.style.fill)
+        console.log(typeof(neighborElement!.style.fill))
         if (
             stateElement && neighborElement &&
             stateElement.style.fill === neighborElement.style.fill
+            && stateElement.style.fill !== "rgb(255, 255, 255)"
         ) {
           return {
             name: states[neighbor],
@@ -481,7 +485,7 @@ const colorCollidingStates = computed(() => {
       </div>
     </div>
     <div
-        style="bottom:100px;box-shadow:3px 3px 8px rgba(0, 0, 0, 0.2);height:500px;left:0;overflow-x:hidden;overflow-y:auto;padding:10px;position:absolute;width:auto;"
+        style="bottom:100px;box-shadow:3px 3px 8px rgba(0, 0, 0, 0.2);height:200px;left:0;overflow-x:hidden;overflow-y:auto;padding:10px;position:absolute;width:auto;"
     >
       <h2>Bordering States:</h2>
       <h3>(with same color)</h3>
