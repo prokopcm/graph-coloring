@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { mapData } from '~/data/mapData'
+import { mapData, stateAbbrevToName } from '~/data/mapData'
+import type { GraphNode } from '~/utils/graphUtils'
 
 interface StateColor {
   [key: string]: string
@@ -59,59 +60,6 @@ const stateColors = ref<StateColor>({
   WY: '#FFFFFF',
 })
 
-const stateAbbrevToName: Record<string, string> = {
-  AL: 'Alabama',
-  AK: 'Alaska',
-  AZ: 'Arizona',
-  AR: 'Arkansas',
-  CA: 'California',
-  CO: 'Colorado',
-  CT: 'Connecticut',
-  DE: 'Delaware',
-  FL: 'Florida',
-  GA: 'Georgia',
-  HI: 'Hawaii',
-  ID: 'Idaho',
-  IL: 'Illinois',
-  IN: 'Indiana',
-  IA: 'Iowa',
-  KS: 'Kansas',
-  KY: 'Kentucky',
-  LA: 'Louisiana',
-  ME: 'Maine',
-  MD: 'Maryland',
-  MA: 'Massachusetts',
-  MI: 'Michigan',
-  MN: 'Minnesota',
-  MS: 'Mississippi',
-  MO: 'Missouri',
-  MT: 'Montana',
-  NE: 'Nebraska',
-  NV: 'Nevada',
-  NH: 'New Hampshire',
-  NJ: 'New Jersey',
-  NM: 'New Mexico',
-  NY: 'New York',
-  NC: 'North Carolina',
-  ND: 'North Dakota',
-  OH: 'Ohio',
-  OK: 'Oklahoma',
-  OR: 'Oregon',
-  PA: 'Pennsylvania',
-  RI: 'Rhode Island',
-  SC: 'South Carolina',
-  SD: 'South Dakota',
-  TN: 'Tennessee',
-  TX: 'Texas',
-  UT: 'Utah',
-  VT: 'Vermont',
-  VA: 'Virginia',
-  WA: 'Washington',
-  WV: 'West Virginia',
-  WI: 'Wisconsin',
-  WY: 'Wyoming',
-}
-
 const selectedState = ref<HTMLElement | null>(null)
 const showColorPicker = ref(false)
 const colors = ref(['#FF6E6E', '#6E9EFF', '#6EFF98', '#FFFA6E', '#FF6EFF', '#FFA64D', '#6EFFFF', '#FFFFFF'])
@@ -153,14 +101,16 @@ function mouseOutState (event: MouseEvent) {
 
   if (stateElement.tagName === 'path' && stateElement.id) {
     if (selectedState.value && selectedState.value.id === stateElement.id) {
+      console.log('mouseout same as selected state', stateElement.id)
       return
     }
     if (stateColors.value[stateElement.id]) {
       stateElement.style.fill = stateColors.value[stateElement.id]
-
+      console.log('mouseout Filling state', stateElement.id)
       return
     }
     mouseoverState.value = null
+    console.log('mouseout setting mouseoverState to null')
     // stateElement.style.fill = '#FFFFFF'
   }
 }
@@ -268,14 +218,7 @@ function mapWrapperClicked (event: MouseEvent) {
   }
 }
 
-interface StateNode {
-  name: string
-  neighbors: string[]
-}
 
-interface GraphInterface {
-  [key: string]: StateNode
-}
 
 const graph = {
   AL: { name: 'AL', neighbors: ['FL', 'GA', 'MS', 'TN'] },
@@ -394,14 +337,14 @@ const states: Record<string, string> = {
   WY: 'Wyoming',
 }
 
-function neighborsWithSameColor (graphState: StateNode): Array<{ name: string, color: string }> {
+function neighborsWithSameColor (graphState: GraphNode): Array<{ name: string, color: string }> {
   return graphState.neighbors
     .map((neighbor) => {
       const stateElement = document.getElementById(graphState.name)
       const neighborElement = document.getElementById(neighbor)
-      console.log(stateElement!.style.fill)
-      console.log(neighborElement!.style.fill)
-      console.log(typeof (neighborElement!.style.fill))
+      // console.log(stateElement!.style.fill)
+      // console.log(neighborElement!.style.fill)
+      // console.log(typeof (neighborElement!.style.fill))
       if (
         stateElement && neighborElement
         && stateElement.style.fill === neighborElement.style.fill
