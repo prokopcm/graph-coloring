@@ -1,15 +1,15 @@
 <script setup>
-    const props = defineProps({
-        'to': String
-    })
+const props = defineProps({
+  to: String,
+})
 </script>
 
 <template>
-    <NuxtLink :to="to" class="link-button">
-        <span class="link-text">
-            <slot />
-        </span>
-    </NuxtLink>
+  <NuxtLink :to="to" class="link-button">
+    <span class="link-text">
+      <slot />
+    </span>
+  </NuxtLink>
 </template>
 
 <style>

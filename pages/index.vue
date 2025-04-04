@@ -1,18 +1,24 @@
 <template>
-    <div>
-        <AppMenu selected="home" />
-        <div class="content">
-            <section class="introduction darker-bg section-pb">
-                <div class="intro">Click/tap on a state to color it!</div>
-                <InteractiveUSMap />
-                <div class="button-wrapper">
-                    <LinkButton to="/about">Learn more about how this works</LinkButton>
-                </div>
-            </section>
-            <section class="spacer"><span>​</span></section>
+  <div>
+    <AppMenu selected="home" />
+    <div class="content">
+      <section class="darker-bg introduction section-pb">
+        <div class="intro">
+          Click/tap on a state to color it!
         </div>
-        <Footer />
+        <InteractiveUSMap />
+        <div class="button-wrapper">
+          <LinkButton to="/about">
+            Learn more about how this works
+          </LinkButton>
+        </div>
+      </section>
+      <section class="spacer">
+        <span>​</span>
+      </section>
     </div>
+    <Footer />
+  </div>
 </template>
 
 <style scoped>

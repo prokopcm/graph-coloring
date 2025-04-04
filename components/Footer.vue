@@ -1,11 +1,8 @@
 <script setup lang="ts">
-const currentYear = new Date().getFullYear()
 </script>
 
 <template>
-    <section class="site-footer flex flex-col justify-between">
-        <!-- <div class="subsection-wrapper pb-8">© {{ currentYear }} by Michael Prokopchuk</div> -->
-    </section>
+  <section class="flex flex-col justify-between site-footer" />
 </template>
 
 <style>

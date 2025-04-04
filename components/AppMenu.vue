@@ -1,39 +1,39 @@
 <script setup lang="ts">
-const props = defineProps({ 'selected': String })
+const props = defineProps({ selected: String })
 
-function getLinkStyle(link: string) {
-    return link === props.selected ? 'text-link' : 'unselected'
+function getLinkStyle (link: string) {
+  return link === props.selected ? 'text-link' : 'unselected'
 }
 </script>
 
 <template>
-    <div class="site-header flex justify-between" tabindex="-1">
-        <p class="font_0 header-hero">
-            <NuxtLink to="/">
-                <span class="color_15 sm:m-4 md:m-4">
-                    Coloring, Creative Math, and Computers
-                </span>
-            </NuxtLink>
-        </p>
-        <nav class="" aria-label="Site">
-            <ul class="order-last">
-                <li class="pr-4">
-                    <NuxtLink :class="getLinkStyle('home')" to="/">
-                        <span class="text-right p-1">
-                            Home
-                        </span>
-                    </NuxtLink>
-                </li>
-                <li class="pr-4">
-                    <NuxtLink :class="getLinkStyle('about')" to="/about">
-                        <span class="text-right p-1">
-                            About
-                        </span>
-                    </NuxtLink>
-                </li>
-            </ul>
-        </nav>
-    </div>
+  <div class="flex justify-between site-header" tabindex="-1">
+    <p class="font_0 header-hero">
+      <NuxtLink to="/">
+        <span class="color_15 md:m-4 sm:m-4">
+          Coloring, Creative Math, and Computers
+        </span>
+      </NuxtLink>
+    </p>
+    <nav class="" aria-label="Site">
+      <ul class="order-last">
+        <li class="pr-4">
+          <NuxtLink :class="getLinkStyle('home')" to="/">
+            <span class="p-1 text-right">
+              Home
+            </span>
+          </NuxtLink>
+        </li>
+        <li class="pr-4">
+          <NuxtLink :class="getLinkStyle('about')" to="/about">
+            <span class="p-1 text-right">
+              About
+            </span>
+          </NuxtLink>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </template>
 
 <style>
