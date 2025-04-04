@@ -185,4 +185,8 @@ a {
 .intro {
     text-align:left;
 }
+li {
+  display: list-item;
+  height: auto;
+}
 </style>
