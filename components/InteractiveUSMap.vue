@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { adjacentNeighbors, mapData, stateAbbrevToName } from '~/data/mapData'
-import type { GraphNode } from '~/utils/graphUtils'
 
 interface MapColoring {
   [key: keyof typeof stateAbbrevToName]: string
@@ -16,9 +15,20 @@ const mapColoring = ref<MapColoring>(_mapColoring)
 
 const selectedState = ref<HTMLElement | null>(null)
 const showColorPicker = ref(false)
-const colors = ref(['#FF6E6E', '#6E9EFF', '#6EFF98', '#FFFA6E', '#FF6EFF', '#FFA64D', '#6EFFFF', '#FFFFFF'])
+const colors = ref([
+  { hex: '#FF6E6E', rgb: 'rgb(255, 110, 110)', name: 'red' },
+  { hex: '#6E9EFF', rgb: 'rgb(110, 158, 255)', name: 'blue' },
+  { hex: '#6EFF98', rgb: 'rgb(110, 255, 152)', name: 'green' },
+  { hex: '#FFFA6E', rgb: 'rgb(255, 250, 110)', name: 'yellow' },
+  { hex: '#FF6EFF', rgb: 'rgb(255, 110, 255)', name: 'pink' },
+  { hex: '#FFA64D', rgb: 'rgb(255, 166, 77)', name: 'orange' },
+  { hex: '#6EFFFF', rgb: 'rgb(110, 255, 255)', name: 'cyan' },
+  { hex: '#FFFFFF', rgb: 'rgb(255, 255, 255)', name: 'white' },
+])
 const colorPickerX = ref(0)
 const colorPickerY = ref(0)
+
+const invalidColoringStates = ref<NodeWithColor[]>([])
 
 const mouseoverState = ref<HTMLElement | null>(null)
 
@@ -99,6 +109,11 @@ function stateClicked (event: MouseEvent) {
   }
 }
 
+function colorToName (hexOrRGB: string) {
+  const color = colors.value.find(color => color.hex === hexOrRGB || color.rgb === hexOrRGB)
+  return color ? color.name : hexOrRGB
+}
+
 function toggleColorPicker (show: boolean) {
   console.log('toggleColorPicker', show)
   showColorPicker.value = show
@@ -155,6 +170,8 @@ function resetStateColors () {
       stateElement.style.fill = '#FFFFFF'
     }
   }
+
+  invalidColoringStates.value = []
 }
 
 function setColor (color: string) {
@@ -164,6 +181,8 @@ function setColor (color: string) {
   }
 
   toggleColorPicker(false)
+
+  invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
 }
 
 function mapWrapperClicked (event: MouseEvent) {
@@ -171,83 +190,12 @@ function mapWrapperClicked (event: MouseEvent) {
     toggleColorPicker(false)
   }
 }
-
-function neighborsWithSameColor (graphState: GraphNode): Array<{ name: string, color: string }> {
-  return graphState.neighbors
-    .map((neighbor) => {
-      const stateElement = document.getElementById(graphState.name)
-      const neighborElement = document.getElementById(neighbor)
-      // console.log(stateElement!.style.fill)
-      // console.log(neighborElement!.style.fill)
-      // console.log(typeof (neighborElement!.style.fill))
-      if (
-        stateElement && neighborElement
-        && stateElement.style.fill === neighborElement.style.fill
-        && stateElement.style.fill !== 'rgb(255, 255, 255)'
-      ) {
-        return {
-          name: stateAbbrevToName[neighbor],
-          color: neighborElement.style.fill,
-        }
-      } else {
-        return undefined
-      }
-    })
-    .filter(Boolean)
-    .reduce((accumulator, current) => {
-      if (!current)
-        return accumulator
-      return [...accumulator, current]
-    }, [] as Array<{ name: string, color: string }>)
-}
-
-function achievedFourColorTheorem (graph: GraphInterface) {
-  return Object.values(graph)
-    .map(graphState => neighborsWithSameColor(graphState))
-    .filter(Boolean)
-    .flat(1)
-    .sort((a, b) => {
-      if (!a || !b)
-        return 0
-      const nameA = a.name.toUpperCase()
-      const nameB = b.name.toUpperCase()
-      if (nameA < nameB)
-        return -1
-      if (nameA > nameB)
-        return 1
-      return 0
-    })
-    .filter((value, index, self) => {
-      return (
-        value
-        && self.findIndex(
-          item =>
-            item && item.name === value.name && item.color === value.color,
-        ) === index
-      )
-    })
-    .filter(value => value !== null && value !== undefined)
-}
-
-function miscolorStatePresenter (stateColor: MapColoring) {
-  return `<div style="color:${stateColor.color};">${stateColor.name}<div>`
-}
-
-const colorCollidingStates = computed(() => {
-  const innerHTML = achievedFourColorTheorem(adjacentNeighbors)
-    .map(miscolorStatePresenter)
-    .join('')
-  const remainingColorCollidingStates = document.getElementById('color-colliding-states')
-  if (remainingColorCollidingStates) {
-    remainingColorCollidingStates.innerHTML = innerHTML
-  }
-})
 </script>
 
 <template>
   <div id="map-wrapper" class="map-wrapper" @click="mapWrapperClicked">
     <div class="uncolored-states" style="float: left; box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2); padding: 10px;">
-      <div style="font-weight: bold; margin-bottom: 5px;">
+      <div class="font-bold mb-1.5">
         States Remaining:
       </div>
       <div
@@ -259,19 +207,13 @@ const colorCollidingStates = computed(() => {
         {{ stateAbbrevToName[state] }}
       </div>
     </div>
-    <div
-      style="bottom:100px;box-shadow:3px 3px 8px rgba(0, 0, 0, 0.2);height:200px;left:0;overflow-x:hidden;overflow-y:auto;padding:10px;position:absolute;width:auto;"
+    <div 
+      v-if="invalidColoringStates.length > 0"
+      class="toast-alert"
+      style="position: absolute; bottom: 20px; right: 20px; background-color: #ff6b6b; color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; max-width: 400px;"
+      @click="selectState(invalidColoringStates[0].name)"
     >
-      <h2>Bordering States:</h2>
-      <h3>(with same color)</h3>
-      <div
-        v-for="state in uncoloredStates.slice(0, 3)"
-        id="color-colliding-states"
-        ref="colorCollidingStates"
-        :key="state"
-        style="background-color: rgba(0, 0, 0, 0.25);cursor: pointer;padding: 5px"
-        @click="selectState(state)"
-      />
+      {{ invalidColoringStates[0].name }} and {{ invalidColoringStates.length > 1 ? invalidColoringStates[1].name : invalidColoringStates[0].name }} are both {{ colorToName(invalidColoringStates[0].color) }}. Tap on me to fix!
     </div>
     <svg
       class="svg-map"
@@ -297,10 +239,10 @@ const colorCollidingStates = computed(() => {
       <div class="color-picker">
         <div
           v-for="color in colors"
-          :key="color"
-          :style="{ backgroundColor: color }"
+          :key="color.hex"
+          :style="{ backgroundColor: color.hex }"
           class="color"
-          @click.prevent="setColor(color)"
+          @click.prevent="setColor(color.hex)"
         />
       </div>
     </div>
@@ -345,5 +287,9 @@ const colorCollidingStates = computed(() => {
   height: 589px;
   display: inline-block;
   /* viewBox="0 0 1000 589" */
+}
+
+.map-wrapper {
+  position: relative;
 }
 </style>
