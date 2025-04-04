@@ -7,15 +7,8 @@ interface MapColoring {
   [key: keyof typeof stateAbbrevToName]: string
 }
 
-const _mapColoring: MapColoring = {}
-for (const abbrev in stateAbbrevToName) {
-  _mapColoring[abbrev] = '#FFFFFF'
-}
+const ONE_MIN_MS = 60000
 
-const mapColoring = ref<MapColoring>(_mapColoring)
-
-const selectedState = ref<HTMLElement | null>(null)
-const showColorPicker = ref(false)
 const colors = [
   { hex: '#FF6E6E', rgb: 'rgb(255, 110, 110)', name: 'red' },
   { hex: '#6E9EFF', rgb: 'rgb(110, 158, 255)', name: 'blue' },
@@ -26,17 +19,31 @@ const colors = [
   { hex: '#6EFFFF', rgb: 'rgb(110, 255, 255)', name: 'cyan' },
   { hex: '#FFFFFF', rgb: 'rgb(255, 255, 255)', name: 'white' },
 ]
+
+const _mapColoring: MapColoring = {}
+for (const abbrev in stateAbbrevToName) {
+  _mapColoring[abbrev] = '#FFFFFF'
+}
+
+const adminMode = ref(false)
 const colorPickerX = ref(0)
 const colorPickerY = ref(0)
-
-const ONE_MIN_MS = 60000
-
 const invalidColoringStates = ref<NodeWithColor[]>([])
-
+const mapColoring = ref<MapColoring>(_mapColoring)
 const mouseoverState = ref<HTMLElement | null>(null)
 const resetTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const selectedState = ref<HTMLElement | null>(null)
+const showColorPicker = ref(false)
 const showInfoDialog = ref(false)
 const showSuccessMessage = ref(false)
+
+const colorsUsed = computed(() => {
+  return new Set(...Object.values(mapColoring.value).filter(color => color !== '#FFFFFF')).size
+})
+
+const completedMap = computed(() => {
+  return uncoloredStates.value.length < 50 && invalidColoringStates.value.length === 0
+})
 
 const uncoloredStates = computed(() => {
   const uncolored = Object.entries(mapColoring.value)
@@ -46,19 +53,11 @@ const uncoloredStates = computed(() => {
   return uncolored.sort((a, b) => stateAbbrevToName[a].localeCompare(stateAbbrevToName[b]))
 })
 
-const completedMap = computed(() => {
-  return uncoloredStates.value.length < 50 && invalidColoringStates.value.length === 0
-})
-
 // Watch for map fully colored and in a valid state
 watch([completedMap], ([completed]) => {
   if (completed) {
     celebratePuzzleCompletion()
   }
-})
-
-const colorsUsed = computed(() => {
-  return new Set(...Object.values(mapColoring.value).filter(color => color !== '#FFFFFF')).size
 })
 
 function cancelResetTimer () {
