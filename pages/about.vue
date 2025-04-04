@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable no-irregular-whitespace -->
   <div>
     <AppMenu selected="about" />
     <div class="content">

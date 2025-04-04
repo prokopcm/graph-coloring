@@ -14,6 +14,7 @@
         </div>
       </section>
       <section class="spacer">
+        <!-- eslint-disable-next-line no-irregular-whitespace -->
         <span>​</span>
       </section>
     </div>
