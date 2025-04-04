@@ -74,7 +74,11 @@ onMounted(() => {
 })
 
 function getFillColor (stateId: string) {
-  if (selectedState.value && selectedState.value.id === stateId || mouseoverState.value && mouseoverState.value.id === stateId) {
+  if (selectedState.value) {
+    if (selectedState.value.id === stateId) {
+      return '#CCFFEE'
+    }
+  } else if (mouseoverState.value && mouseoverState.value.id === stateId) {
     return '#CCFFEE'
   }
 
@@ -94,17 +98,12 @@ function mouseOutState (event: MouseEvent) {
 
   if (stateElement.tagName === 'path' && stateElement.id) {
     if (selectedState.value && selectedState.value.id === stateElement.id) {
-      console.log('mouseout same as selected state', stateElement.id)
       return
     }
     if (mapColoring.value[stateElement.id]) {
       stateElement.style.fill = mapColoring.value[stateElement.id]
-      console.log('mouseout Filling state', stateElement.id)
-      return
     }
     mouseoverState.value = null
-    console.log('mouseout setting mouseoverState to null')
-    // stateElement.style.fill = '#FFFFFF'
   }
 }
 
@@ -144,7 +143,6 @@ function colorToName (hexOrRGB: string) {
 }
 
 function toggleColorPicker (show: boolean) {
-  console.log('toggleColorPicker', show)
   showColorPicker.value = show
 
   if (show) {
@@ -248,7 +246,7 @@ function closeInfoDialog() {
     <div 
       v-if="invalidColoringStates.length > 1"
       class="toast-alert"
-      style="position: absolute; bottom: 20px; right: 20px; background-color: #ff6b6b; color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; max-width: 400px; cursor: pointer;"
+      style="position: absolute; bottom: 20px; right: 20px; background-color: #ff6b6b; color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 99; max-width: 400px; cursor: pointer;"
       @click="selectState(invalidColoringStates[0].name)"
     >
       {{ stateAbbrevToName[invalidColoringStates[0].name] }} and {{ stateAbbrevToName[invalidColoringStates[1].name] }} are both {{ colorToName(invalidColoringStates[0].color) }}.
