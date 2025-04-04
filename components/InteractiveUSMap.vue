@@ -43,9 +43,13 @@ const uncoloredStates = computed(() => {
   return uncolored.sort((a, b) => stateAbbrevToName[a].localeCompare(stateAbbrevToName[b]))
 })
 
+const completedMap = computed(() => {
+  return uncoloredStates.value.length === 0 && invalidColoringStates.value.length === 0
+})
+
 // Watch for map fully colored and in a valid state
-watch([uncoloredStates, invalidColoringStates], ([uncolored, invalid]) => {
-  if (uncolored.length === 0 && invalid.length === 0) {
+watch([completedMap], ([completed]) => {
+  if (completed) {
     celebratePuzzleCompletion()
   }
 })
@@ -250,8 +254,8 @@ function closeInfoDialog() {
     </div>
     <div 
       v-if="showSuccessMessage"
-      class="success-message"
-      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #4CAF50; color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; text-align: center; max-width: 400px;"
+      class="success-message ml-2.5 absolute"
+      style="background-color: #4CAF50; color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; text-align: center; max-width: 215px;"
     >
       <h2 style="margin-top: 0; font-size: 24px;">Congratulations! 🎉</h2>
       <p>You've successfully colored the entire map!</p>
@@ -291,15 +295,21 @@ function closeInfoDialog() {
     </div>
     <div>
       <div class="button-wrapper mb-4">
-        <button class="link-button" @click.prevent="resetStateColors">
+        <button
+          class="link-button"
+          @click.prevent="resetStateColors"
+        >
           Reset
         </button>
-        <button class="link-button ml-4" @click.prevent="showInfoDialog = true">
+        <button 
+          class="link-button ml-4"
+          @click.prevent="showInfoDialog = true"
+        >
           <span class="inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Learn more about how this works
+            Help
           </span>
         </button>
       </div>
@@ -310,17 +320,16 @@ function closeInfoDialog() {
       <div class="bg-white rounded-lg shadow-lg max-w-[600px] w-full relative z-10">
         <div class="p-6">
           <h2 class="text-2xl font-bold mb-4 text-left">
-            How Map Coloring Works
+            How This Works
           </h2>
           <div class="mb-6 text-left">
-            <p class="mb-4">This interactive map demonstrates a math theorem about how many colors are needed to color any map so that no states that touch each other share the same color.</p>
-            <p class="mb-2">To use this map:</p>
+            <p class="mb-4">This interactive app demonstrates a math theorem about how many colors are needed to color any map so that no states that touch each other share the same color.</p>
+            <p class="mb-2">To color this map:</p>
             <ol class="list-disc pl-6 mb-4">
               <li class="mb-1">Tap on any state to select it</li>
               <li class="mb-1">Choose a color from the color picker</li>
-              <li class="mb-1">Try to color the entire map using as few colors as possible without having any states next to each other that share the same color</li>
             </ol>
-            <p>If you make a mistake, the app will let you know so you can fix it!</p>
+            <p class="mb-1">Try to color the entire map using as few colors as possible without having any states next to each other that share the same color.</p>
             <p class="mt-2 font-bold">Get creative and have fun! 🎨</p>
           </div>
           <div class="flex justify-end">
