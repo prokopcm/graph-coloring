@@ -7,6 +7,7 @@ interface MapColoring {
   [key: keyof typeof stateAbbrevToName]: string
 }
 
+const ADMIN_CLICK_TIMEFRAME = 5000
 const ONE_MIN_MS = 60000
 
 const colors = [
@@ -26,6 +27,9 @@ for (const abbrev in stateAbbrevToName) {
 }
 
 const adminMode = ref(false)
+const adminClickCount = ref(0)
+const adminClickTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+
 const colorPickerX = ref(0)
 const colorPickerY = ref(0)
 const invalidColoringStates = ref<NodeWithColor[]>([])
@@ -42,7 +46,7 @@ const colorsUsed = computed(() => {
 })
 
 const completedMap = computed(() => {
-  return uncoloredStates.value.length < 50 && invalidColoringStates.value.length === 0
+  return uncoloredStates.value.length === 0 && invalidColoringStates.value.length === 0
 })
 
 const uncoloredStates = computed(() => {
@@ -80,7 +84,7 @@ function celebratePuzzleCompletion () {
 
   const currentDate = new Date()
   const isApril4To6 = currentDate.getMonth() === 3 && currentDate.getDate() >= 4 && currentDate.getDate() <= 6
-  if (isApril4To6) {
+  if (isApril4To6 && !adminMode.value) {
     startResetTimer()
   }
 }
@@ -133,6 +137,25 @@ function mouseOutState (event: MouseEvent) {
       stateElement.style.fill = mapColoring.value[stateElement.id]
     }
     mouseoverState.value = null
+  }
+}
+
+function onAdminButtonClick () {
+  adminClickCount.value++
+
+  if (adminClickCount.value === 1) {
+    adminClickTimer.value = setTimeout(() => {
+      adminClickCount.value = 0
+    }, ADMIN_CLICK_TIMEFRAME)
+  }
+
+  if (adminClickCount.value >= 5) {
+    adminMode.value = !adminMode.value
+    adminClickCount.value = 0
+
+    if (adminClickTimer.value) {
+      clearTimeout(adminClickTimer.value)
+    }
   }
 }
 
@@ -248,6 +271,11 @@ function setColor (color: string) {
   invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
 }
 
+function setIdealColoring () {
+  // TODO
+  mapColoring.value['MI'] = '#FF6E6E'
+}
+
 onMounted(() => {
   resetStateColors()
 })
@@ -333,6 +361,17 @@ onMounted(() => {
     </div>
     <div>
       <div class="button-wrapper mb-4">
+        <div 
+          class="admin-button" 
+          @click="onAdminButtonClick"
+        />
+        <button
+          v-if="adminMode"
+          class="link-button mr-4"
+          @click.prevent="setIdealColoring"
+        >
+          Color
+        </button>
         <button
           class="link-button"
           @click.prevent="resetStateColors"
@@ -344,10 +383,10 @@ onMounted(() => {
           @click.prevent="showInfoDialog = true"
         >
           <span class="inline-flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Help
+            Instructions
           </span>
         </button>
       </div>
@@ -384,6 +423,20 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.admin-button {
+  position: absolute;
+  width: 60px;
+  height: 52px;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  z-index: 10;
+}
+
+.button-wrapper {
+  position: relative;
+}
+
 .color-picker-container {
   position: absolute;
   top: 0;
