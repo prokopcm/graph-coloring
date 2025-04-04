@@ -189,6 +189,7 @@ function resetStateColors () {
     mapColoring.value[state] = '#FFFFFF'
   }
   selectedState.value = null
+  mouseoverState.value = null
   showColorPicker.value = false
   showSuccessMessage.value = false
 
