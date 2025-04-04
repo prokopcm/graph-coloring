@@ -29,6 +29,8 @@ const colors = [
 const colorPickerX = ref(0)
 const colorPickerY = ref(0)
 
+const ONE_MIN_MS = 60000
+
 const invalidColoringStates = ref<NodeWithColor[]>([])
 
 const mouseoverState = ref<HTMLElement | null>(null)
@@ -45,7 +47,7 @@ const uncoloredStates = computed(() => {
 })
 
 const completedMap = computed(() => {
-  return uncoloredStates.value.length === 0 && invalidColoringStates.value.length === 0
+  return uncoloredStates.value.length < 50 && invalidColoringStates.value.length === 0
 })
 
 // Watch for map fully colored and in a valid state
@@ -75,6 +77,13 @@ function celebratePuzzleCompletion () {
     origin: { x: 0.5, y: 0.5 },
     zIndex: 0,
   })
+
+
+  const currentDate = new Date()
+  const isApril4To6 = currentDate.getMonth() === 3 && currentDate.getDate() >= 4 && currentDate.getDate() <= 6
+  if (isApril4To6) {
+    startResetTimer()
+  }
 }
 
 function closeInfoDialog() {
@@ -106,7 +115,7 @@ function mapWrapperClicked (event: MouseEvent) {
 }
 
 
-function mouseOverState (event: MouseEvent) {
+function mouseEnterState (event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id && mapColoring.value[stateElement.id] === '#FFFFFF') {
@@ -126,6 +135,17 @@ function mouseOutState (event: MouseEvent) {
     }
     mouseoverState.value = null
   }
+}
+
+function startResetTimer () {
+  if (resetTimer.value) {
+    return
+  }
+
+  resetTimer.value = setTimeout(() => {
+    resetTimer.value = null
+    resetStateColors()
+  }, ONE_MIN_MS)
 }
 
 function stateClicked (event: MouseEvent) {
@@ -151,6 +171,7 @@ function stateClicked (event: MouseEvent) {
 
 function toggleColorPicker (show: boolean) {
   showColorPicker.value = show
+  cancelResetTimer()
 
   if (show) {
     if (selectedState.value) {
@@ -169,9 +190,12 @@ function toggleColorPicker (show: boolean) {
 }
 
 function resetStateColors () {
+  cancelResetTimer()
+
   for (const state in mapColoring.value) {
     mapColoring.value[state] = '#FFFFFF'
   }
+
   selectedState.value = null
   mouseoverState.value = null
   showColorPicker.value = false
@@ -189,8 +213,9 @@ function resetStateColors () {
   invalidColoringStates.value = []
 }
 
-
 function selectState (state: string) {
+  cancelResetTimer()
+
   const stateElement = document.getElementById(state) as HTMLElement
 
   if (stateElement && stateElement.tagName === 'path') {
@@ -212,6 +237,8 @@ function selectState (state: string) {
 }
 
 function setColor (color: string) {
+  cancelResetTimer()
+
   if (selectedState.value) {
     selectedState.value.style.fill = color
     mapColoring.value[selectedState.value.id] = color
@@ -261,9 +288,18 @@ onMounted(() => {
       style="background-color: #4CAF50; color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; text-align: center; max-width: 215px;"
     >
       <h2 style="margin-top: 0; font-size: 24px;">Congratulations! 🎉</h2>
-      <p>You've successfully colored the entire map!</p>
+      <p class="mb-2">You successfully colored the map!</p>
       <p>You used {{ colorsUsed }} colors.</p>
-
+      <br>
+      <div
+      class="small-reset-button inline mr-1"
+      @click.prevent="resetStateColors"
+      style="background-color: #FFFFFF; color: black; padding: 4px 8px 4px 13px; border-radius: 12px; border: 1px solid #000; cursor: pointer; font-size: 14px;"
+    >
+      Reset
+    </div>
+    <i>the map to try coloring again!</i>
+    
     </div>
     <svg
       class="svg-map"
@@ -277,7 +313,7 @@ onMounted(() => {
         :key="state.id"
         :d="state.d"
         :style="{ fill: getFillColor(state.id) }"
-        @mouseenter="mouseOverState"
+        @mouseenter="mouseEnterState"
         @mouseout="mouseOutState"
       />
     </svg>
