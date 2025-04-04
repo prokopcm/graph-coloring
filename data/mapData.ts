@@ -1,3 +1,7 @@
+export interface MapColoring {
+  [key: keyof typeof stateAbbrevToName]: string
+}
+
 export const adjacentNeighbors: GraphInterface = {
   AL: { name: 'AL', neighbors: ['FL', 'GA', 'MS', 'TN'] },
   AK: { name: 'AK', neighbors: [] },
@@ -61,6 +65,59 @@ export const adjacentNeighbors: GraphInterface = {
   WV: { name: 'WV', neighbors: ['KY', 'MD', 'OH', 'PA', 'VA'] },
   WI: { name: 'WI', neighbors: ['IL', 'IA', 'MI', 'MN'] },
   WY: { name: 'WY', neighbors: ['CO', 'ID', 'MT', 'NE', 'SD', 'UT'] },
+}
+
+export const idealColoring: MapColoring = {
+	"AL": "c2",
+	"AK": "c1",
+	"AZ": "c1",
+	"AR": "c2",
+	"CA": "c3",
+	"CO": "c1",
+	"CT": "c1",
+	"DE": "c2",
+	"FL": "c3",
+	"GA": "c1",
+	"HI": "c1",
+	"ID": "c1",
+	"IL": "c3",
+	"IN": "c1",
+	"IA": "c2",
+	"KS": "c2",
+	"KY": "c2",
+	"LA": "c3",
+	"ME": "c3",
+	"MD": "c3",
+	"MA": "c3",
+	"MI": "c2",
+	"MN": "c3",
+	"MS": "c1",
+	"MO": "c1",
+	"MT": "c3",
+	"NE": "c3",
+	"NV": "c4",
+	"NH": "c2",
+	"NJ": "c3",
+	"NM": "c2",
+	"NY": "c2",
+	"NC": "c2",
+	"ND": "c2",
+	"OH": "c3",
+	"OK": "c3",
+	"OR": "c2",
+	"PA": "c1",
+	"RI": "c2",
+	"SC": "c3",
+	"SD": "c1",
+	"TN": "c3",
+	"TX": "c1",
+	"UT": "c3",
+	"VT": "c1",
+	"VA": "c1",
+	"WA": "c3",
+	"WV": "c4",
+	"WI": "c1",
+	"WY": "c2",
 }
 
 export const stateAbbrevToName: Record<string, string> = {

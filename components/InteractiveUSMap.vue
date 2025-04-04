@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import confetti from 'canvas-confetti'
 import { onMounted, ref, computed, watch } from 'vue'
-import { adjacentNeighbors, mapData, stateAbbrevToName } from '~/data/mapData'
+import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName, type MapColoring } from '~/data/mapData'
 
-interface MapColoring {
-  [key: keyof typeof stateAbbrevToName]: string
-}
 
 const ADMIN_CLICK_TIMEFRAME = 5000
 const ONE_MIN_MS = 60000
@@ -42,7 +39,9 @@ const showInfoDialog = ref(false)
 const showSuccessMessage = ref(false)
 
 const colorsUsed = computed(() => {
-  return new Set(...Object.values(mapColoring.value).filter(color => color !== '#FFFFFF')).size
+  const used = new Set(Object.values(mapColoring.value).filter(color => color !== '#FFFFFF'))
+
+  return used.size
 })
 
 const completedMap = computed(() => {
@@ -272,8 +271,17 @@ function setColor (color: string) {
 }
 
 function setIdealColoring () {
-  // TODO
-  mapColoring.value['MI'] = '#FF6E6E'
+  // Hardcoded for now
+  const colorMapping: Record<string, string> = {
+    "c1": '#FF6E6E',
+    "c2": '#6E9EFF',
+    "c3": '#6EFF98',
+    "c4": '#FFFA6E',
+  }
+
+  for (const [state, color] of Object.entries(idealColoring)) {
+    mapColoring.value[state] = colorMapping[color]
+  }
 }
 
 onMounted(() => {
