@@ -16,7 +16,7 @@ const mapColoring = ref<MapColoring>(_mapColoring)
 
 const selectedState = ref<HTMLElement | null>(null)
 const showColorPicker = ref(false)
-const colors = ref([
+const colors = [
   { hex: '#FF6E6E', rgb: 'rgb(255, 110, 110)', name: 'red' },
   { hex: '#6E9EFF', rgb: 'rgb(110, 158, 255)', name: 'blue' },
   { hex: '#6EFF98', rgb: 'rgb(110, 255, 152)', name: 'green' },
@@ -25,13 +25,14 @@ const colors = ref([
   { hex: '#FFA64D', rgb: 'rgb(255, 166, 77)', name: 'orange' },
   { hex: '#6EFFFF', rgb: 'rgb(110, 255, 255)', name: 'cyan' },
   { hex: '#FFFFFF', rgb: 'rgb(255, 255, 255)', name: 'white' },
-])
+]
 const colorPickerX = ref(0)
 const colorPickerY = ref(0)
 
 const invalidColoringStates = ref<NodeWithColor[]>([])
 
 const mouseoverState = ref<HTMLElement | null>(null)
+const resetTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const showInfoDialog = ref(false)
 const showSuccessMessage = ref(false)
 
@@ -58,7 +59,14 @@ const colorsUsed = computed(() => {
   return new Set(...Object.values(mapColoring.value).filter(color => color !== '#FFFFFF')).size
 })
 
-function celebratePuzzleCompletion() {
+function cancelResetTimer () {
+  if (resetTimer.value) {
+    clearTimeout(resetTimer.value)
+    resetTimer.value = null
+  }
+}
+
+function celebratePuzzleCompletion () {
   showSuccessMessage.value = true
   
   confetti({
@@ -69,9 +77,15 @@ function celebratePuzzleCompletion() {
   })
 }
 
-onMounted(() => {
-  resetStateColors()
-})
+function closeInfoDialog() {
+  showInfoDialog.value = false
+}
+
+function colorToName (hexOrRGB: string) {
+  const color = colors.find(color => color.hex === hexOrRGB || color.rgb === hexOrRGB)
+  
+  return color ? color.name : hexOrRGB
+}
 
 function getFillColor (stateId: string) {
   if (selectedState.value) {
@@ -84,6 +98,13 @@ function getFillColor (stateId: string) {
 
   return mapColoring.value[stateId] || '#FFFFFF'
 }
+
+function mapWrapperClicked (event: MouseEvent) {
+  if (event.target instanceof HTMLElement && event.target.id === 'map-wrapper') {
+    toggleColorPicker(false)
+  }
+}
+
 
 function mouseOverState (event: MouseEvent) {
   const stateElement = event.target as HTMLElement
@@ -104,15 +125,6 @@ function mouseOutState (event: MouseEvent) {
       stateElement.style.fill = mapColoring.value[stateElement.id]
     }
     mouseoverState.value = null
-  }
-}
-
-function resetFillColor (event: MouseEvent) {
-  const stateElement = event.target as HTMLElement
-
-  if (stateElement.tagName === 'path' && stateElement.id) {
-    mapColoring.value[stateElement.id] = '#FFFFFF'
-    // stateElement.style.fill = '#FFFFFF'
   }
 }
 
@@ -137,11 +149,6 @@ function stateClicked (event: MouseEvent) {
   }
 }
 
-function colorToName (hexOrRGB: string) {
-  const color = colors.value.find(color => color.hex === hexOrRGB || color.rgb === hexOrRGB)
-  return color ? color.name : hexOrRGB
-}
-
 function toggleColorPicker (show: boolean) {
   showColorPicker.value = show
 
@@ -158,27 +165,6 @@ function toggleColorPicker (show: boolean) {
     if (mouseoverState.value) {
       mouseoverState.value = null
     }
-  }
-}
-
-function selectState (state: string) {
-  const stateElement = document.getElementById(state) as HTMLElement
-
-  if (stateElement && stateElement.tagName === 'path') {
-    if (selectedState.value && selectedState.value.id !== state) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || '#FFFFFF'
-    }
-
-    // Position the color picker near the state element
-    const rect = stateElement.getBoundingClientRect()
-    const mapWrapper = document.querySelector('.map-wrapper') as HTMLElement
-    const pageWidth = mapWrapper.offsetWidth
-
-    colorPickerX.value = Math.min(rect.left, pageWidth - 420)
-    colorPickerY.value = rect.bottom
-
-    selectedState.value = stateElement
-    toggleColorPicker(true)
   }
 }
 
@@ -203,6 +189,28 @@ function resetStateColors () {
   invalidColoringStates.value = []
 }
 
+
+function selectState (state: string) {
+  const stateElement = document.getElementById(state) as HTMLElement
+
+  if (stateElement && stateElement.tagName === 'path') {
+    if (selectedState.value && selectedState.value.id !== state) {
+      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || '#FFFFFF'
+    }
+
+    // Position the color picker near the state element
+    const rect = stateElement.getBoundingClientRect()
+    const mapWrapper = document.querySelector('.map-wrapper') as HTMLElement
+    const pageWidth = mapWrapper.offsetWidth
+
+    colorPickerX.value = Math.min(rect.left, pageWidth - 420)
+    colorPickerY.value = rect.bottom
+
+    selectedState.value = stateElement
+    toggleColorPicker(true)
+  }
+}
+
 function setColor (color: string) {
   if (selectedState.value) {
     selectedState.value.style.fill = color
@@ -214,15 +222,9 @@ function setColor (color: string) {
   invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
 }
 
-function mapWrapperClicked (event: MouseEvent) {
-  if (event.target instanceof HTMLElement && event.target.id === 'map-wrapper') {
-    toggleColorPicker(false)
-  }
-}
-
-function closeInfoDialog() {
-  showInfoDialog.value = false
-}
+onMounted(() => {
+  resetStateColors()
+})
 </script>
 
 <template>
