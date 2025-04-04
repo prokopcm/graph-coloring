@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { adjacentNeighbors, mapData, stateAbbrevToName } from '~/data/mapData'
 
 interface MapColoring {
@@ -31,6 +31,7 @@ const colorPickerY = ref(0)
 const invalidColoringStates = ref<NodeWithColor[]>([])
 
 const mouseoverState = ref<HTMLElement | null>(null)
+const showInfoDialog = ref(false)
 
 const uncoloredStates = computed(() => {
   const uncolored = Object.entries(mapColoring.value)
@@ -190,11 +191,15 @@ function mapWrapperClicked (event: MouseEvent) {
     toggleColorPicker(false)
   }
 }
+
+function closeInfoDialog() {
+  showInfoDialog.value = false
+}
 </script>
 
 <template>
   <div id="map-wrapper" class="map-wrapper" @click="mapWrapperClicked">
-    <div class="uncolored-states" style="float: left; box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2); padding: 10px;">
+    <div class="uncolored-states ml-2.5" style="float: left; box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 10px">
       <div class="font-bold mb-1.5">
         States Remaining:
       </div>
@@ -251,6 +256,43 @@ function mapWrapperClicked (event: MouseEvent) {
         <button class="link-button" @click.prevent="resetStateColors">
           Reset
         </button>
+        <button class="link-button ml-4" @click.prevent="showInfoDialog = true">
+          <span class="inline-flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Learn more about how this works
+          </span>
+        </button>
+      </div>
+    </div>
+    
+    <div v-if="showInfoDialog" class="fixed inset-0 flex items-center justify-center z-50">
+      <div class="fixed inset-0 bg-black bg-opacity-50" @click="showInfoDialog = false"></div>
+      <div class="bg-white rounded-lg shadow-lg max-w-[600px] w-full relative z-10">
+        <div class="p-6">
+          <h2 class="text-2xl font-bold mb-4 text-left">
+            How Map Coloring Works
+          </h2>
+          <div class="mb-6 text-left">
+            <p class="mb-4">This interactive map demonstrates a math theorem about how many colors are needed to color any map so that no states that touch each other share the same color.</p>
+            <p class="mb-2">To use this map:</p>
+            <ol class="list-disc pl-6 mb-4">
+              <li class="mb-1">Tap on any state to select it</li>
+              <li class="mb-1">Choose a color from the color picker</li>
+              <li class="mb-1">Try to color the entire map using as few colors as possible without having any states next to each other that share the same color</li>
+            </ol>
+            <p>If you make a mistake, the app will let you know so you can fix it!</p>
+            <p class="mt-2 font-bold">Get creative and have fun! 🎨</p>
+          </div>
+          <div class="flex justify-end">
+            <button class="link-button ml-4"
+              @click="closeInfoDialog"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -291,5 +333,9 @@ function mapWrapperClicked (event: MouseEvent) {
 
 .map-wrapper {
   position: relative;
+}
+
+li {
+  display: list-item;
 }
 </style>

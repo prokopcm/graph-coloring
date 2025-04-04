@@ -7,11 +7,7 @@
           Click/tap on a state to color it!
         </div>
         <InteractiveUSMap />
-        <div class="button-wrapper">
-          <LinkButton to="/about">
-            Learn more about how this works
-          </LinkButton>
-        </div>
+        <div class="button-wrapper" />
       </section>
       <section class="spacer">
         <!-- eslint-disable-next-line no-irregular-whitespace -->
