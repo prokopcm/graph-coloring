@@ -246,12 +246,14 @@ function closeInfoDialog() {
       </div>
     </div>
     <div 
-      v-if="invalidColoringStates.length > 0"
+      v-if="invalidColoringStates.length > 1"
       class="toast-alert"
-      style="position: absolute; bottom: 20px; right: 20px; background-color: #ff6b6b; color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; max-width: 400px;"
+      style="position: absolute; bottom: 20px; right: 20px; background-color: #ff6b6b; color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; max-width: 400px; cursor: pointer;"
       @click="selectState(invalidColoringStates[0].name)"
     >
-      {{ invalidColoringStates[0].name }} and {{ invalidColoringStates.length > 1 ? invalidColoringStates[1].name : invalidColoringStates[0].name }} are both {{ colorToName(invalidColoringStates[0].color) }}. Tap on me to fix!
+      {{ stateAbbrevToName[invalidColoringStates[0].name] }} and {{ stateAbbrevToName[invalidColoringStates[1].name] }} are both {{ colorToName(invalidColoringStates[0].color) }}.
+      <br>
+      Tap on me to fix!
     </div>
     <div 
       v-if="showSuccessMessage"
