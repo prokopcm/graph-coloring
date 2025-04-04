@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import confetti from 'canvas-confetti'
+import { onMounted, ref, computed, watch } from 'vue'
 import { adjacentNeighbors, mapData, stateAbbrevToName } from '~/data/mapData'
 
 interface MapColoring {
@@ -32,6 +33,7 @@ const invalidColoringStates = ref<NodeWithColor[]>([])
 
 const mouseoverState = ref<HTMLElement | null>(null)
 const showInfoDialog = ref(false)
+const showSuccessMessage = ref(false)
 
 const uncoloredStates = computed(() => {
   const uncolored = Object.entries(mapColoring.value)
@@ -40,6 +42,28 @@ const uncoloredStates = computed(() => {
 
   return uncolored.sort((a, b) => stateAbbrevToName[a].localeCompare(stateAbbrevToName[b]))
 })
+
+// Watch for map fully colored and in a valid state
+watch([uncoloredStates, invalidColoringStates], ([uncolored, invalid]) => {
+  if (uncolored.length === 0 && invalid.length === 0) {
+    celebratePuzzleCompletion()
+  }
+})
+
+const colorsUsed = computed(() => {
+  return new Set(...Object.values(mapColoring.value).filter(color => color !== '#FFFFFF')).size
+})
+
+function celebratePuzzleCompletion() {
+  showSuccessMessage.value = true
+  
+  confetti({
+    particleCount: 300,
+    spread: 70,
+    origin: { x: 0.5, y: 0.5 },
+    zIndex: 0,
+  })
+}
 
 onMounted(() => {
   resetStateColors()
@@ -102,7 +126,7 @@ function stateClicked (event: MouseEvent) {
     const pageWidth = mapWrapper.offsetWidth
 
     colorPickerX.value = Math.min(event.clientX - 150, pageWidth - 420)
-    colorPickerY.value = event.clientY + 50
+    colorPickerY.value = event.clientY
     selectedState.value = stateElement
     toggleColorPicker(true)
   } else {
@@ -162,6 +186,7 @@ function resetStateColors () {
   }
   selectedState.value = null
   showColorPicker.value = false
+  showSuccessMessage.value = false
 
   // loop through each <path> element and reset the fill style
   for (const stateInfo of mapData) {
@@ -204,7 +229,7 @@ function closeInfoDialog() {
       class="uncolored-states ml-2.5 absolute rounded-lg p-2.5 shadow-md"
     >
       <div class="font-bold mb-1.5">
-        States Remaining:
+        States Remaining ({{ uncoloredStates.length }}):
       </div>
       <div
         v-for="state in uncoloredStates.slice(0, 3)"
@@ -222,6 +247,16 @@ function closeInfoDialog() {
       @click="selectState(invalidColoringStates[0].name)"
     >
       {{ invalidColoringStates[0].name }} and {{ invalidColoringStates.length > 1 ? invalidColoringStates[1].name : invalidColoringStates[0].name }} are both {{ colorToName(invalidColoringStates[0].color) }}. Tap on me to fix!
+    </div>
+    <div 
+      v-if="showSuccessMessage"
+      class="success-message"
+      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #4CAF50; color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; text-align: center; max-width: 400px;"
+    >
+      <h2 style="margin-top: 0; font-size: 24px;">Congratulations! 🎉</h2>
+      <p>You've successfully colored the entire map!</p>
+      <p>You used {{ colorsUsed }} colors.</p>
+
     </div>
     <svg
       class="svg-map"
