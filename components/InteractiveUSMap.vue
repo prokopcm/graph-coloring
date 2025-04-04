@@ -199,7 +199,10 @@ function closeInfoDialog() {
 
 <template>
   <div id="map-wrapper" class="map-wrapper" @click="mapWrapperClicked">
-    <div class="uncolored-states ml-2.5" style="float: left; box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 10px">
+    <div
+      v-if="uncoloredStates.length > 0"
+      class="uncolored-states ml-2.5 absolute rounded-lg p-2.5 shadow-md"
+    >
       <div class="font-bold mb-1.5">
         States Remaining:
       </div>
