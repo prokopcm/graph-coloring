@@ -98,7 +98,7 @@
           <br><br>
           <div class="intro">
             <i>
-              I presented this at the 2024 Michigan State University science festival along with Benyair Orellana, another computer science graduate student at Georgia Tech, as a way to introduce the public and prospective future scientists to a fun, interesting, and valuable type of math often not encountered until college. Because of its inherently visual nature (the "graph" in graph theory comes from the same Greek root as "graphics"), the intuition behind a lot of it is simple and accessible, even if you aren't a computer scientist!
+              <!-- I presented this at the 2024 Michigan State University science festival along with Benyair Orellana, another computer science graduate student at Georgia Tech, as a way to introduce the public and prospective future scientists to a fun, interesting, and valuable type of math often not encountered until college. Because of its inherently visual nature (the "graph" in graph theory comes from the same Greek root as "graphics"), the intuition behind a lot of it is simple and accessible, even if you aren't a computer scientist! -->
               <br>
               I wanted to share an area of theory and math that is both fun and different from most people's conception of math. My hope is that participants will come away with a broader, more creative definition of mathematics and have a positive interaction with math while solving a complex equation with 50 states...er, I mean variables.</i>
           </div>
