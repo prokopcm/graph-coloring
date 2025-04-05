@@ -176,7 +176,7 @@ function openInfoDialog () {
 function resetInteractionTimer () {
   cancelInteractionTimer()
 
-  if (uncoloredStates.value.length === 50 || !isApril4To6) {
+  if (uncoloredStates.value.length === 50 || !isApril4To6 || adminMode.value) {
     return
   }
 
