@@ -211,7 +211,7 @@ function stateClicked (event: MouseEvent) {
     const pageWidth = mapWrapper.offsetWidth
 
     colorPickerX.value = Math.min(event.clientX - 150, pageWidth - 420)
-    colorPickerY.value = event.clientY
+    colorPickerY.value = event.clientY + 10
     selectedState.value = stateElement
     toggleColorPicker(true)
   } else {
@@ -291,8 +291,7 @@ function selectState (state: string) {
     const pageWidth = mapWrapper.offsetWidth
 
     colorPickerX.value = Math.min(rect.left, pageWidth - 420)
-    colorPickerY.value = rect.bottom - 25
-
+    colorPickerY.value = rect.bottom
 
     selectedState.value = stateElement
     toggleColorPicker(true)
