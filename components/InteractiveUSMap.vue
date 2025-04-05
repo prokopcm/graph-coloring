@@ -291,7 +291,7 @@ function selectState (state: string) {
     const pageWidth = mapWrapper.offsetWidth
 
     colorPickerX.value = Math.min(rect.left, pageWidth - 420)
-    colorPickerY.value = rect.bottom - 100
+    colorPickerY.value = rect.bottom - 25
 
 
     selectedState.value = stateElement
