@@ -1,10 +1,16 @@
+<script setup lang="ts">
+const isiOS = window && /iPad|iPhone|iPod/.test(window.navigator.userAgent)
+</script>
 <template>
   <div>
-    <AppMenu selected="home" />
+    <AppMenu
+      v-if="!isiOS"
+      selected="home"
+    />
     <div class="content">
       <section class="darker-bg introduction section-pb">
         <div class="intro">
-          Click/tap on a state to color it!
+          Click/tap on a state to color it! States that touch must be different colors.
         </div>
         <InteractiveUSMap />
         <div class="button-wrapper" />
