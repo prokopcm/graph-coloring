@@ -6,6 +6,7 @@ import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName, type MapC
 
 const ADMIN_CLICK_TIMEFRAME = 5000
 const ONE_MIN_MS = 60000
+const TWO_MIN_MS = ONE_MIN_MS * 2
 
 const colors = [
   { hex: '#FF6E6E', rgb: 'rgb(255, 110, 110)', name: 'red' },
@@ -23,18 +24,24 @@ for (const abbrev in stateAbbrevToName) {
   _mapColoring[abbrev] = '#FFFFFF'
 }
 
+
+const currentDate = new Date()
+const isApril4To6 = currentDate.getMonth() === 3 && currentDate.getDate() >= 4 && currentDate.getDate() <= 6
+
 const adminMode = ref(false)
 const adminClickCount = ref(0)
 const adminClickTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const colorPickerX = ref(0)
 const colorPickerY = ref(0)
+const interactionTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const invalidColoringStates = ref<NodeWithColor[]>([])
 const mapColoring = ref<MapColoring>(_mapColoring)
 const mouseoverState = ref<HTMLElement | null>(null)
 const resetTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const selectedState = ref<HTMLElement | null>(null)
 const showColorPicker = ref(false)
+const showAreYouStillThereDialog = ref(false)
 const showInfoDialog = ref(false)
 const showSuccessMessage = ref(false)
 
@@ -80,9 +87,6 @@ function celebratePuzzleCompletion () {
     zIndex: 0,
   })
 
-
-  const currentDate = new Date()
-  const isApril4To6 = currentDate.getMonth() === 3 && currentDate.getDate() >= 4 && currentDate.getDate() <= 6
   if (isApril4To6 && !adminMode.value) {
     startResetTimer()
   }
@@ -90,6 +94,12 @@ function celebratePuzzleCompletion () {
 
 function closeInfoDialog() {
   showInfoDialog.value = false
+  resetInteractionTimer()
+}
+
+function closeAreYouStillThereDialog() {
+  showAreYouStillThereDialog.value = false
+  resetInteractionTimer()
 }
 
 function colorToName (hexOrRGB: string) {
@@ -158,6 +168,25 @@ function onAdminButtonClick () {
   }
 }
 
+function openInfoDialog () {
+  showInfoDialog.value = true
+  resetInteractionTimer()
+}
+
+function resetInteractionTimer () {
+  cancelInteractionTimer()
+
+  if (uncoloredStates.value.length === 50 || !isApril4To6) {
+    return
+  }
+
+  interactionTimer.value = setTimeout(() => {
+    interactionTimer.value = null
+    showAreYouStillThereDialog.value = true
+    startResetTimer()
+  }, TWO_MIN_MS)
+}
+
 function startResetTimer () {
   if (resetTimer.value) {
     return
@@ -166,7 +195,7 @@ function startResetTimer () {
   resetTimer.value = setTimeout(() => {
     resetTimer.value = null
     resetStateColors()
-  }, ONE_MIN_MS)
+  }, TWO_MIN_MS)
 }
 
 function stateClicked (event: MouseEvent) {
@@ -190,9 +219,17 @@ function stateClicked (event: MouseEvent) {
   }
 }
 
+function cancelInteractionTimer () {
+  if (interactionTimer.value) {
+    clearTimeout(interactionTimer.value)
+    interactionTimer.value = null
+  }
+}
+
 function toggleColorPicker (show: boolean) {
   showColorPicker.value = show
   cancelResetTimer()
+  resetInteractionTimer()
 
   if (show) {
     if (selectedState.value) {
@@ -211,7 +248,10 @@ function toggleColorPicker (show: boolean) {
 }
 
 function resetStateColors () {
+  cancelInteractionTimer()
   cancelResetTimer()
+  showAreYouStillThereDialog.value = false
+  showInfoDialog.value = false
 
   for (const state in mapColoring.value) {
     mapColoring.value[state] = '#FFFFFF'
@@ -236,6 +276,7 @@ function resetStateColors () {
 
 function selectState (state: string) {
   cancelResetTimer()
+  resetInteractionTimer()
 
   const stateElement = document.getElementById(state) as HTMLElement
 
@@ -250,7 +291,8 @@ function selectState (state: string) {
     const pageWidth = mapWrapper.offsetWidth
 
     colorPickerX.value = Math.min(rect.left, pageWidth - 420)
-    colorPickerY.value = rect.bottom
+    colorPickerY.value = rect.bottom - 100
+
 
     selectedState.value = stateElement
     toggleColorPicker(true)
@@ -259,6 +301,7 @@ function selectState (state: string) {
 
 function setColor (color: string) {
   cancelResetTimer()
+  resetInteractionTimer()
 
   if (selectedState.value) {
     selectedState.value.style.fill = color
@@ -391,7 +434,7 @@ onMounted(() => {
         </button>
         <button 
           class="link-button ml-4"
-          @click.prevent="showInfoDialog = true"
+          @click.prevent="openInfoDialog"
         >
           <span class="inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -404,31 +447,16 @@ onMounted(() => {
     </div>
     
     <div v-if="showInfoDialog" class="fixed inset-0 flex items-center justify-center z-50">
-      <div class="fixed inset-0 bg-black bg-opacity-50" @click="showInfoDialog = false"></div>
-      <div class="bg-white rounded-lg shadow-lg max-w-[600px] w-full relative z-10">
-        <div class="p-6">
-          <h2 class="text-2xl font-bold mb-4 text-left">
-            How This Works
-          </h2>
-          <div class="mb-6 text-left">
-            <p class="mb-4">This interactive app demonstrates a math theorem about how many colors are needed to color any map so that no states that touch each other share the same color.</p>
-            <p class="mb-2">To color this map:</p>
-            <ol class="list-disc pl-6 mb-4">
-              <li class="mb-1">Tap on any state to select it</li>
-              <li class="mb-1">Choose a color from the color picker</li>
-            </ol>
-            <p class="mb-1">Try to color the entire map using as few colors as possible without having any states next to each other that share the same color.</p>
-            <p class="mt-2 font-bold">Get creative and have fun! 🎨</p>
-          </div>
-          <div class="flex justify-end">
-            <button class="link-button ml-4"
-              @click="closeInfoDialog"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
+      <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeInfoDialog" />
+      <InfoDialog
+        @close="closeInfoDialog"
+      />
+    </div>
+    <div v-if="showAreYouStillThereDialog" class="fixed inset-0 flex items-center justify-center z-50">
+      <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeAreYouStillThereDialog" />
+      <AreYouStillThereDialog
+        @close="closeAreYouStillThereDialog"
+      />
     </div>
   </div>
 </template>
@@ -456,7 +484,7 @@ onMounted(() => {
   background-color: #FFF;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
-  z-index: 100;
+  z-index: 90;
 }
 
 .color-picker {
