@@ -296,7 +296,7 @@ onMounted(() => {
       class="uncolored-states ml-2.5 absolute rounded-lg p-2.5 shadow-md"
     >
       <div class="font-bold mb-1.5">
-        States Remaining ({{ uncoloredStates.length }}):
+        States left to color:
       </div>
       <div
         v-for="state in uncoloredStates.slice(0, 3)"
@@ -305,6 +305,9 @@ onMounted(() => {
         @click="selectState(state)"
       >
         {{ stateAbbrevToName[state] }}
+      </div>
+      <div v-if="uncoloredStates.length > 3">
+        <i style="color: grey; font-size: 0.875em;">and {{ uncoloredStates.length - 3 }} more...</i>
       </div>
     </div>
     <div 
