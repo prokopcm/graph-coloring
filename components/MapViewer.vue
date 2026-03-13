@@ -3,7 +3,8 @@
  * A component that displays an SVG map with coloring state and handles
  * the input events for the map.
  */
-import type { MapColoring, MapNodeData } from '~/data/mapData'
+import type { MapColoring } from '~/utils/graphUtils'
+import type { MapNodeData } from '~/utils/mapUtils'
 import { colorNameHex } from '~/data/colors'
 
 const props = defineProps<{
