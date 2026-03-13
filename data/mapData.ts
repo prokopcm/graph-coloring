@@ -1,25 +1,5 @@
-import type { AbstractMapColoring, AbstractNodeColor, NeighborGraph } from '~/utils/graphUtils'
-
-/** A record with the key the as the node id and the value the hex color of the node */
-export interface MapColoring {
-  [key: string]: string
-}
-
-export const idealColoring: AbstractMapColoring = {}
-
-export interface MapNodeData {
-  /** The SVG path data for the node's shape */
-  d: string
-
-  /** The id of the node */
-  id: string
-
-  /** The ideal color for the node */
-  idealColor: AbstractNodeColor
-
-  /** The human-readable display name of the node */
-  name: string
-}
+import type { AbstractMapColoring, NeighborGraph } from '~/utils/graphUtils'
+import type { MapNodeData } from '~/utils/mapUtils'
 
 export const adjacentNeighbors: NeighborGraph = {
   AL: { id: 'AL', neighbors: ['FL', 'GA', 'MS', 'TN'] },
@@ -401,6 +381,8 @@ export const nodeIdToName: Record<string, string> = {}
 
 /** A list of the node ids in a map */
 export const nodeIds: string[] = []
+
+export const idealColoring: AbstractMapColoring = {}
 
 // This should probably be a more robust loading or setup function
 for (const node of mapData) {

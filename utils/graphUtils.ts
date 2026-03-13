@@ -1,4 +1,4 @@
-import type { MapColoring } from '~/data/mapData'
+import type { MapColoring } from '~/utils/mapUtils'
 import { colorNameHex } from '~/data/colors'
 
 /** An abstract representation of which of the 4 possible colors a node in a map can have */
