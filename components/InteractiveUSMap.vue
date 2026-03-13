@@ -93,7 +93,12 @@ function closeAreYouStillThereDialog() {
   resetInteractionTimer()
 }
 
-function getFillColor(stateId: string) {
+/**
+ * Returns the fill color for a given node (state) based on the selected state and mouseover state.
+ * @param stateId The ID of the state to get the fill color for, e.g. `'CA'`.
+ * @returns The hex fill color to apply to the given node, e.g. `'#FF0000'`.
+ */
+function getFillColorForNode(stateId: string) {
   if (selectedState.value) {
     if (selectedState.value.id === stateId) {
       return '#CCFFEE'
@@ -214,6 +219,7 @@ function cancelInteractionTimer() {
 
 function toggleColorPicker(show: boolean) {
   showColorPicker.value = show
+
   cancelResetTimer()
   resetInteractionTimer()
 
@@ -237,6 +243,7 @@ function toggleColorPicker(show: boolean) {
 function resetStateColors() {
   cancelInteractionTimer()
   cancelResetTimer()
+
   showAreYouStillThereDialog.value = false
   showInfoDialog.value = false
 
@@ -253,6 +260,7 @@ function resetStateColors() {
   for (const stateInfo of mapData) {
     const stateId = stateInfo.id
     const stateElement = document.getElementById(stateId)
+
     if (stateElement) {
       stateElement.style.fill = '#FFFFFF'
     }
@@ -261,14 +269,14 @@ function resetStateColors() {
   invalidColoringStates.value = []
 }
 
-function selectState(state: string) {
+function selectState(stateId: string) {
   cancelResetTimer()
   resetInteractionTimer()
 
-  const stateElement = document.getElementById(state) as HTMLElement
+  const stateElement = document.getElementById(stateId) as HTMLElement
 
   if (stateElement && stateElement.tagName === 'path') {
-    if (selectedState.value && selectedState.value.id !== state) {
+    if (selectedState.value && selectedState.value.id !== stateId) {
       selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || '#FFFFFF'
     }
 
@@ -285,13 +293,18 @@ function selectState(state: string) {
   }
 }
 
-function setColor(color: string) {
+/**
+ * Sets the color of the selected node (state) to a given hex color after a user
+ * has selected a color from the color picker.
+ * Also hides the color picker and resets the reset and interaction timers.
+ * @param color The hex color to set the node to, e.g. `'#FF0000'`.
+ */
+function onColorPickerColorSelected(hexColor: string) {
   cancelResetTimer()
   resetInteractionTimer()
 
   if (selectedState.value) {
-    selectedState.value.style.fill = color
-    mapColoring.value[selectedState.value.id] = color
+    setSelectedNodeColor(hexColor)
   }
 
   toggleColorPicker(false)
@@ -299,13 +312,30 @@ function setColor(color: string) {
   invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
 }
 
+/**
+ * Sets the color of the selected node (state) to a given hex color.
+ * Also hides the color picker and resets the reset and interaction timers.
+ * @param color The hex color to set the node to, e.g. `'#FF0000'`.
+ */
+function setSelectedNodeColor(hexColor: string) {
+  if (selectedState.value) {
+    selectedState.value.style.fill = hexColor
+    mapColoring.value[selectedState.value.id] = hexColor
+  }
+}
+
+/**
+ * Auto-colors the map using an ideal coloring. Just overrides the current coloring.
+ */
 function setIdealColoring() {
-  // Hardcoded for now
+  // Hardcoded for now, would be cool to see which colors the user's already used
+  // and reuse those.
+  // Or keep their current coloring.
   const colorMapping: Record<string, string> = {
-    c1: '#FF6E6E',
-    c2: '#6E9EFF',
-    c3: '#6EFF98',
-    c4: '#FFFA6E',
+    c1: colorsList[0].hex,
+    c2: colorsList[1].hex,
+    c3: colorsList[2].hex,
+    c4: colorsList[3].hex,
   }
 
   for (const [state, color] of Object.entries(idealColoring)) {
@@ -382,7 +412,7 @@ onMounted(() => {
         :id="state.id"
         :key="state.id"
         :d="state.d"
-        :style="{ fill: getFillColor(state.id) }"
+        :style="{ fill: getFillColorForNode(state.id) }"
         @mouseenter="mouseEnterState"
         @mouseout="mouseOutState"
       />
@@ -398,7 +428,7 @@ onMounted(() => {
           :key="color.hex"
           :style="{ backgroundColor: color.hex }"
           class="color"
-          @click.prevent="setColor(color.hex)"
+          @click.prevent="onColorPickerColorSelected(color.hex)"
         />
       </div>
     </div>
