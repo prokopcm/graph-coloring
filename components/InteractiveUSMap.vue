@@ -2,6 +2,7 @@
 import type { USMapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
+import AdminButton from '~/components/AdminButton.vue'
 import ColorPicker from '~/components/ColorPicker.vue'
 import MapButtonControls from '~/components/MapButtonControls.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
@@ -10,8 +11,6 @@ import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/
 import { colorToName } from '~/utils/colorUtils'
 import { isSciFest, TWO_MIN_MS } from '~/utils/dateTimeUtils'
 
-const ADMIN_CLICK_TIMEFRAME = 5000
-
 const _mapColoring: USMapColoring = {}
 
 for (const abbrev in stateAbbrevToName) {
@@ -19,16 +18,13 @@ for (const abbrev in stateAbbrevToName) {
 }
 
 const adminMode = ref(false)
-const adminClickCount = ref(0)
-const adminClickTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-
 const colorPickerX = ref(0)
 const colorPickerY = ref(0)
-const interactionTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-const invalidColoringStates = ref<NodeWithColor[]>([])
+const interactionTimer = ref<number | null>(null)
 const mapColoring = ref<USMapColoring>(_mapColoring)
 const mouseoverState = ref<HTMLElement | null>(null)
-const resetTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const nodesWithInvalidColorings = ref<NodeWithColor[]>([])
+const resetTimer = ref<number | null>(null)
 const selectedState = ref<HTMLElement | null>(null)
 const showColorPicker = ref(false)
 const showAreYouStillThereDialog = ref(false)
@@ -52,7 +48,7 @@ const uncoloredStates = computed(() => {
 })
 
 const completedMap = computed(() => {
-  return uncoloredStates.value.length === 0 && invalidColoringStates.value.length === 0
+  return uncoloredStates.value.length === 0 && nodesWithInvalidColorings.value.length === 0
 })
 
 // Watch for map fully colored and in a valid state
@@ -186,26 +182,8 @@ function onMouseOutNode(event: MouseEvent) {
   }
 }
 
-/**
- * Handles the admin button being clicked and toggles the admin mode.
- */
-function onAdminButtonClick() {
-  adminClickCount.value++
-
-  if (adminClickCount.value === 1) {
-    adminClickTimer.value = setTimeout(() => {
-      adminClickCount.value = 0
-    }, ADMIN_CLICK_TIMEFRAME)
-  }
-
-  if (adminClickCount.value >= 5) {
-    adminMode.value = !adminMode.value
-    adminClickCount.value = 0
-
-    if (adminClickTimer.value) {
-      clearTimeout(adminClickTimer.value)
-    }
-  }
+function onToggleAdmin() {
+  adminMode.value = !adminMode.value
 }
 
 /**
@@ -223,7 +201,7 @@ function onColorPickerColorSelected(hexColor: string) {
 
   toggleColorPicker(false)
 
-  invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
+  nodesWithInvalidColorings.value = getInvalidColoringNodes(adjacentNeighbors)
 }
 
 /**
@@ -327,7 +305,7 @@ function resetMapColors() {
     }
   }
 
-  invalidColoringStates.value = []
+  nodesWithInvalidColorings.value = []
 }
 
 /**
@@ -463,11 +441,11 @@ onMounted(() => {
       @select-node="selectState"
     />
     <div
-      v-if="invalidColoringStates.length > 1"
+      v-if="nodesWithInvalidColorings.length > 1"
       class="invalid-coloring toast-alert"
-      @click="selectState(invalidColoringStates[0].name)"
+      @click="selectState(nodesWithInvalidColorings[0].name)"
     >
-      {{ stateAbbrevToName[invalidColoringStates[0].name] }} and {{ stateAbbrevToName[invalidColoringStates[1].name] }} are both {{ colorToName(invalidColoringStates[0].color) }}.
+      {{ stateAbbrevToName[nodesWithInvalidColorings[0].name] }} and {{ stateAbbrevToName[nodesWithInvalidColorings[1].name] }} are both {{ colorToName(nodesWithInvalidColorings[0].color) }}.
       <br>
       Tap on me to fix!
     </div>
@@ -517,9 +495,8 @@ onMounted(() => {
     />
     <div>
       <div class="button-wrapper mb-4">
-        <div
-          class="admin-button"
-          @click="onAdminButtonClick"
+        <AdminButton
+          @toggle-admin="onToggleAdmin"
         />
         <MapButtonControls
           @auto-color="setIdealColoring"
