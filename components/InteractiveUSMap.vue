@@ -8,19 +8,15 @@ import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vu
 import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
+import { isSciFest, TWO_MIN_MS } from '~/utils/dateTimeUtils'
 
 const ADMIN_CLICK_TIMEFRAME = 5000
-const ONE_MIN_MS = 60000
-const TWO_MIN_MS = ONE_MIN_MS * 2
 
 const _mapColoring: USMapColoring = {}
 
 for (const abbrev in stateAbbrevToName) {
   _mapColoring[abbrev] = colorNameHex.BLANK
 }
-
-const currentDate = new Date()
-const isApril4To6 = currentDate.getMonth() === 3 && currentDate.getDate() >= 4 && currentDate.getDate() <= 6
 
 const adminMode = ref(false)
 const adminClickCount = ref(0)
@@ -52,7 +48,7 @@ const uncoloredStates = computed(() => {
     .filter(([_, color]) => color === colorNameHex.BLANK)
     .map(([state, _]) => state)
 
-  return uncolored.sort((a, b) => stateAbbrevToName[a].localeCompare(stateAbbrevToName[b]))
+  return uncolored.sort((a, b) => stateAbbrevToName[a] < stateAbbrevToName[b] ? -1 : 1)
 })
 
 const completedMap = computed(() => {
@@ -62,7 +58,7 @@ const completedMap = computed(() => {
 // Watch for map fully colored and in a valid state
 watch(completedMap, (completed) => {
   if (completed) {
-    celebratePuzzleCompletion()
+    celebrateColoringCompletion()
   }
 })
 
@@ -90,6 +86,9 @@ watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => 
   }
 })
 
+/**
+ * Clears the map reset timer if it is set.
+ */
 function cancelResetTimer() {
   if (resetTimer.value) {
     clearTimeout(resetTimer.value)
@@ -97,7 +96,11 @@ function cancelResetTimer() {
   }
 }
 
-function celebratePuzzleCompletion() {
+/**
+ * Shows the success message and confetti to the user after they have completed the coloring.
+ * Also starts the reset timer if it is currently SciFest and not in admin mode.
+ */
+function celebrateColoringCompletion() {
   showSuccessMessage.value = true
 
   confetti({
@@ -107,19 +110,35 @@ function celebratePuzzleCompletion() {
     zIndex: 0,
   })
 
-  if (isApril4To6 && !adminMode.value) {
+  if (isSciFest && !adminMode.value) {
     startResetTimer()
   }
 }
 
-function closeInfoDialog() {
-  showInfoDialog.value = false
+/**
+ * Closes all open dialogs/modals and resets the interaction timer.
+ */
+function closeDialogs() {
+  toggleInfoDialog(false)
+  toggleAreYouStillThereDialog(false)
+
   resetInteractionTimer()
 }
 
-function closeAreYouStillThereDialog() {
-  showAreYouStillThereDialog.value = false
-  resetInteractionTimer()
+/**
+ * Toggles the info dialog.
+ * @param show Whether to show the dialog.
+ */
+function toggleInfoDialog(show: boolean) {
+  showInfoDialog.value = show
+}
+
+/**
+ * Closes the are you still there dialog.
+ * @param show Whether to show the dialog.
+ */
+function toggleAreYouStillThereDialog(show: boolean) {
+  showAreYouStillThereDialog.value = show
 }
 
 /**
@@ -188,24 +207,28 @@ function onAdminButtonClick() {
 }
 
 function openInfoDialog() {
-  showInfoDialog.value = true
+  toggleInfoDialog(true)
   resetInteractionTimer()
 }
 
 function resetInteractionTimer() {
   cancelInteractionTimer()
 
-  if (uncoloredStates.value.length === 50 || !isApril4To6 || adminMode.value) {
+  if (uncoloredStates.value.length === 50 || !isSciFest || adminMode.value) {
     return
   }
 
   interactionTimer.value = setTimeout(() => {
     interactionTimer.value = null
-    showAreYouStillThereDialog.value = true
+    toggleAreYouStillThereDialog(true)
     startResetTimer()
   }, TWO_MIN_MS)
 }
 
+/**
+ * Starts the reset timer if it isn't already started.
+ * If it fires, it resets the map coloring.
+ */
 function startResetTimer() {
   if (resetTimer.value) {
     return
@@ -217,7 +240,11 @@ function startResetTimer() {
   }, TWO_MIN_MS)
 }
 
-function stateClicked(event: MouseEvent) {
+/**
+ * Handles a state being clicked on the map.
+ * @param event The click or tap event.
+ */
+function stateClicked(event: PointerEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id) {
@@ -239,6 +266,9 @@ function stateClicked(event: MouseEvent) {
   }
 }
 
+/**
+ * Clears the interaction timer if it is set.
+ */
 function cancelInteractionTimer() {
   if (interactionTimer.value) {
     clearTimeout(interactionTimer.value)
@@ -246,11 +276,15 @@ function cancelInteractionTimer() {
   }
 }
 
+/**
+ * Toggles the color picker and highlights the selected state in the selected fill color.
+ * Also resets the interaction timers.
+ * @param show Whether to show the color picker.
+ */
 function toggleColorPicker(show: boolean) {
   showColorPicker.value = show
 
-  cancelResetTimer()
-  resetInteractionTimer()
+  resetInteractionTimers()
 
   if (show) {
     if (selectedState.value) {
@@ -269,12 +303,22 @@ function toggleColorPicker(show: boolean) {
   }
 }
 
-function resetStateColors() {
+/**
+ * Cancels and resets the interaction and reset timers.
+ */
+function resetInteractionTimers() {
   cancelInteractionTimer()
   cancelResetTimer()
+}
 
-  showAreYouStillThereDialog.value = false
-  showInfoDialog.value = false
+/**
+ * Resets the state colors to blank and closes all dialogs.
+ * Also resets the interaction timers.
+ */
+function resetStateColors() {
+  resetInteractionTimers()
+
+  closeDialogs()
 
   for (const state in mapColoring.value) {
     mapColoring.value[state] = colorNameHex.BLANK
@@ -298,9 +342,13 @@ function resetStateColors() {
   invalidColoringStates.value = []
 }
 
+/**
+ * Selects a state on the map. Resets interaction timers,
+ * sets the SVG graphic's fill color for the state, and opens the color picker.
+ * @param stateId The ID of the state to select, e.g. `'CA'`.
+ */
 function selectState(stateId: string) {
-  cancelResetTimer()
-  resetInteractionTimer()
+  resetInteractionTimers()
 
   const stateElement = document.getElementById(stateId) as HTMLElement
 
@@ -329,8 +377,7 @@ function selectState(stateId: string) {
  * @param color The hex color to set the node to, e.g. `'#FF0000'`.
  */
 function onColorPickerColorSelected(hexColor: string) {
-  cancelResetTimer()
-  resetInteractionTimer()
+  resetInteractionTimers()
 
   if (selectedState.value) {
     setSelectedNodeColor(hexColor)
@@ -453,16 +500,15 @@ onMounted(() => {
         />
       </div>
     </div>
-    <div v-if="showInfoDialog" class="fixed flex inset-0 items-center justify-center z-50">
-      <div class="bg-black bg-opacity-50 fixed inset-0" @click="closeInfoDialog" />
+    <div v-if="showInfoDialog || showAreYouStillThereDialog" class="fixed flex inset-0 items-center justify-center z-50">
+      <div class="bg-black bg-opacity-50 fixed inset-0" @click="closeDialogs" />
       <InfoDialog
-        @close="closeInfoDialog"
+        v-if="showInfoDialog"
+        @close="closeDialogs"
       />
-    </div>
-    <div v-if="showAreYouStillThereDialog" class="fixed flex inset-0 items-center justify-center z-50">
-      <div class="bg-black bg-opacity-50 fixed inset-0" @click="closeAreYouStillThereDialog" />
       <AreYouStillThereDialog
-        @close="closeAreYouStillThereDialog"
+        v-if="showAreYouStillThereDialog"
+        @close="closeDialogs"
       />
     </div>
   </div>
