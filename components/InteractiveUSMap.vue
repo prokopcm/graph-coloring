@@ -1,25 +1,17 @@
 <script setup lang="ts">
-import type { MapColoring } from '~/data/mapData'
+import type { USMapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
+import { colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
+import { colorToName } from '~/utils/colorUtils'
 
 const ADMIN_CLICK_TIMEFRAME = 5000
 const ONE_MIN_MS = 60000
 const TWO_MIN_MS = ONE_MIN_MS * 2
 
-const colors = [
-  { hex: '#FF6E6E', rgb: 'rgb(255, 110, 110)', name: 'red' },
-  { hex: '#6E9EFF', rgb: 'rgb(110, 158, 255)', name: 'blue' },
-  { hex: '#6EFF98', rgb: 'rgb(110, 255, 152)', name: 'green' },
-  { hex: '#FFFA6E', rgb: 'rgb(255, 250, 110)', name: 'yellow' },
-  { hex: '#FF6EFF', rgb: 'rgb(255, 110, 255)', name: 'pink' },
-  { hex: '#FFA64D', rgb: 'rgb(255, 166, 77)', name: 'orange' },
-  { hex: '#6EFFFF', rgb: 'rgb(110, 255, 255)', name: 'cyan' },
-  { hex: '#FFFFFF', rgb: 'rgb(255, 255, 255)', name: 'white' },
-]
+const _mapColoring: USMapColoring = {}
 
-const _mapColoring: MapColoring = {}
 for (const abbrev in stateAbbrevToName) {
   _mapColoring[abbrev] = '#FFFFFF'
 }
@@ -35,7 +27,7 @@ const colorPickerX = ref(0)
 const colorPickerY = ref(0)
 const interactionTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const invalidColoringStates = ref<NodeWithColor[]>([])
-const mapColoring = ref<MapColoring>(_mapColoring)
+const mapColoring = ref<USMapColoring>(_mapColoring)
 const mouseoverState = ref<HTMLElement | null>(null)
 const resetTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const selectedState = ref<HTMLElement | null>(null)
@@ -99,12 +91,6 @@ function closeInfoDialog() {
 function closeAreYouStillThereDialog() {
   showAreYouStillThereDialog.value = false
   resetInteractionTimer()
-}
-
-function colorToName(hexOrRGB: string) {
-  const color = colors.find(color => color.hex === hexOrRGB || color.rgb === hexOrRGB)
-
-  return color ? color.name : hexOrRGB
 }
 
 function getFillColor(stateId: string) {
@@ -408,7 +394,7 @@ onMounted(() => {
     >
       <div class="color-picker">
         <div
-          v-for="color in colors"
+          v-for="color in colorsList"
           :key="color.hex"
           :style="{ backgroundColor: color.hex }"
           class="color"
