@@ -4,8 +4,10 @@
  * regions of the map.
  */
 import type { MapColoring } from '~/utils/graphUtils'
+
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
+
 import AdminButton from '~/components/AdminButton.vue'
 import ColorPicker from '~/components/ColorPicker.vue'
 import InvalidColoringMessage from '~/components/InvalidColoringMessage.vue'

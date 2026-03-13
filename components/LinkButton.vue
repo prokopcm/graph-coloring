@@ -2,6 +2,7 @@
 /**
  * A button component that lets the user navigate to a different page when tapped.
  */
+
 const props = defineProps({
   to: String,
 })

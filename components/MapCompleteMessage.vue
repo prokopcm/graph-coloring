@@ -3,6 +3,7 @@
  * A component that displays a message to the user when they have successfully colored the map.
  * Lets them know how many colors they used and provides a shortcut to reset the map.
  */
+
 const props = defineProps<{
   colorsUsed: number
 }>()

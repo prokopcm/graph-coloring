@@ -2,6 +2,7 @@
 /**
  * A header component that displays the project's title and navigation links.
  */
+
 const props = defineProps<{ selected: string }>()
 
 /**
