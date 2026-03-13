@@ -17,29 +17,57 @@ for (const abbrev in stateAbbrevToName) {
   _mapColoring[abbrev] = colorNameHex.BLANK
 }
 
+/** Whether the admin mode is enabled. Disables reset timers. */
 const adminMode = ref(false)
+
+/** The y position the color picker should be displayed at */
 const colorPickerX = ref(0)
+
+/** The y position the color picker should be displayed at */
 const colorPickerY = ref(0)
-const interactionTimer = ref<number | null>(null)
+
+/** The id of the timeout for the interaction timer */
+const interactionTimerId = ref<number | null>(null)
+
+/** A record with the key the state id and the value the hex color of the state */
 const mapColoring = ref<USMapColoring>(_mapColoring)
-const mouseoverState = ref<HTMLElement | null>(null)
+
+/** The SVG state element that the mouse is hovering over */
+const mouseoverNodeEl = ref<HTMLElement | null>(null)
+
+/** A list of pairs of nodes that are neighbors and have the same color */
 const nodesWithInvalidColorings = ref<NodeWithColor[]>([])
-const resetTimer = ref<number | null>(null)
-const selectedState = ref<HTMLElement | null>(null)
+
+/** The id of the timeout for the reset timer */
+const resetTimerId = ref<number | null>(null)
+
+/** The SVG state/node element that is selected */
+const selectedNodeEl = ref<HTMLElement | null>(null)
+
+/** Whether to show the color picker */
 const showColorPicker = ref(false)
+
+/** Whether to show the are you still there dialog */
 const showAreYouStillThereDialog = ref(false)
+
+/** Whether to show the info dialog */
 const showInfoDialog = ref(false)
+
+/** Whether to show the success message */
 const showSuccessMessage = ref(false)
 
+/** A ref to the uncolored node helper widget */
 const uncoloredNodeHelperRef = ref<InstanceType<typeof UncoloredNodeHelperWidget> | null>(null)
 
+/** The number of unique colors used to color the map */
 const colorsUsed = computed(() => {
   const used = new Set(Object.values(mapColoring.value).filter(color => color !== colorNameHex.BLANK))
 
   return used.size
 })
 
-const uncoloredStates = computed(() => {
+/** A list of the state ids that are still uncolored */
+const uncoloredNodes = computed(() => {
   const uncolored = Object.entries(mapColoring.value)
     .filter(([_, color]) => color === colorNameHex.BLANK)
     .map(([state, _]) => state)
@@ -48,7 +76,7 @@ const uncoloredStates = computed(() => {
 })
 
 const completedMap = computed(() => {
-  return uncoloredStates.value.length === 0 && nodesWithInvalidColorings.value.length === 0
+  return uncoloredNodes.value.length === 0 && nodesWithInvalidColorings.value.length === 0
 })
 
 // Watch for map fully colored and in a valid state
@@ -64,13 +92,13 @@ watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => 
   }
 
   if (!hoveredId || typeof hoveredId !== 'string') {
-    mouseoverState.value = null
+    mouseoverNodeEl.value = null
 
     return
   }
 
   if (mapColoring.value[hoveredId] !== colorNameHex.BLANK) {
-    mouseoverState.value = null
+    mouseoverNodeEl.value = null
 
     return
   }
@@ -78,7 +106,7 @@ watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => 
   const stateElement = document.getElementById(hoveredId) as HTMLElement | null
 
   if (stateElement && stateElement.tagName === 'path') {
-    mouseoverState.value = stateElement
+    mouseoverNodeEl.value = stateElement
   }
 })
 
@@ -86,9 +114,9 @@ watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => 
  * Clears the interaction timer if it is set.
  */
 function cancelInteractionTimer() {
-  if (interactionTimer.value) {
-    clearTimeout(interactionTimer.value)
-    interactionTimer.value = null
+  if (interactionTimerId.value) {
+    clearTimeout(interactionTimerId.value)
+    interactionTimerId.value = null
   }
 }
 
@@ -96,9 +124,9 @@ function cancelInteractionTimer() {
  * Clears the map reset timer if it is set.
  */
 function cancelResetTimer() {
-  if (resetTimer.value) {
-    clearTimeout(resetTimer.value)
-    resetTimer.value = null
+  if (resetTimerId.value) {
+    clearTimeout(resetTimerId.value)
+    resetTimerId.value = null
   }
 }
 
@@ -137,12 +165,12 @@ function closeDialogs() {
  * @returns The hex fill color to apply to the given node, e.g. `'#FF0000'`.
  */
 function getFillColorForNode(stateId: string) {
-  if (selectedState.value) {
-    if (selectedState.value.id === stateId) {
+  if (selectedNodeEl.value) {
+    if (selectedNodeEl.value.id === stateId) {
       return colorNameHex.SELECTED
     }
   }
-  else if (mouseoverState.value && mouseoverState.value.id === stateId) {
+  else if (mouseoverNodeEl.value && mouseoverNodeEl.value.id === stateId) {
     return colorNameHex.SELECTED
   }
 
@@ -150,7 +178,7 @@ function getFillColorForNode(stateId: string) {
 }
 
 /**
- * Handles the mouse entering a state/node and sets the mouseoverState
+ * Handles the mouse entering a state/node and sets the mouseoverNodeEl
  * to the state element if it is uncolored.
  * @param event The mouse enter event.
  */
@@ -158,19 +186,19 @@ function onMouseEnterNode(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id && mapColoring.value[stateElement.id] === colorNameHex.BLANK) {
-    mouseoverState.value = stateElement
+    mouseoverNodeEl.value = stateElement
   }
 }
 
 /**
- * Handles the mouse leaving a state/node and resets the mouseoverState.
+ * Handles the mouse leaving a state/node and resets the mouseoverNodeEl.
  * @param event The mouse leave event.
  */
 function onMouseOutNode(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id) {
-    if (selectedState.value && selectedState.value.id === stateElement.id) {
+    if (selectedNodeEl.value && selectedNodeEl.value.id === stateElement.id) {
       return
     }
 
@@ -178,10 +206,13 @@ function onMouseOutNode(event: MouseEvent) {
       stateElement.style.fill = mapColoring.value[stateElement.id]
     }
 
-    mouseoverState.value = null
+    mouseoverNodeEl.value = null
   }
 }
 
+/**
+ * Toggles the admin mode.
+ */
 function onToggleAdmin() {
   adminMode.value = !adminMode.value
 }
@@ -195,7 +226,7 @@ function onToggleAdmin() {
 function onColorPickerColorSelected(hexColor: string) {
   resetInteractionTimers()
 
-  if (selectedState.value) {
+  if (selectedNodeEl.value) {
     setSelectedNodeColor(hexColor)
   }
 
@@ -222,8 +253,8 @@ function onNodeClicked(event: PointerEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id) {
-    if (selectedState.value && selectedState.value.id !== stateElement.id) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
+    if (selectedNodeEl.value && selectedNodeEl.value.id !== stateElement.id) {
+      selectedNodeEl.value.style.fill = mapColoring.value[selectedNodeEl.value.id] || colorNameHex.BLANK
     }
 
     // get page width
@@ -232,7 +263,7 @@ function onNodeClicked(event: PointerEvent) {
 
     colorPickerX.value = Math.min(event.clientX - 150, pageWidth - 420)
     colorPickerY.value = event.clientY + 10
-    selectedState.value = stateElement
+    selectedNodeEl.value = stateElement
     toggleColorPicker(true)
   }
   else {
@@ -266,12 +297,12 @@ function resetInteractionTimers() {
 function resetInteractionTimer() {
   cancelInteractionTimer()
 
-  if (uncoloredStates.value.length === 50 || !isSciFest || adminMode.value) {
+  if (uncoloredNodes.value.length === 50 || !isSciFest || adminMode.value) {
     return
   }
 
-  interactionTimer.value = setTimeout(() => {
-    interactionTimer.value = null
+  interactionTimerId.value = setTimeout(() => {
+    interactionTimerId.value = null
     toggleAreYouStillThereDialog(true)
     startResetTimer()
   }, TWO_MIN_MS)
@@ -290,8 +321,8 @@ function resetMapColors() {
     mapColoring.value[state] = colorNameHex.BLANK
   }
 
-  selectedState.value = null
-  mouseoverState.value = null
+  selectedNodeEl.value = null
+  mouseoverNodeEl.value = null
   showColorPicker.value = false
   showSuccessMessage.value = false
 
@@ -319,8 +350,8 @@ function selectState(stateId: string) {
   const stateElement = document.getElementById(stateId) as HTMLElement
 
   if (stateElement && stateElement.tagName === 'path') {
-    if (selectedState.value && selectedState.value.id !== stateId) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
+    if (selectedNodeEl.value && selectedNodeEl.value.id !== stateId) {
+      selectedNodeEl.value.style.fill = mapColoring.value[selectedNodeEl.value.id] || colorNameHex.BLANK
     }
 
     // Position the color picker near the state element
@@ -331,7 +362,7 @@ function selectState(stateId: string) {
     colorPickerX.value = Math.min(rect.left, pageWidth - 420)
     colorPickerY.value = rect.bottom
 
-    selectedState.value = stateElement
+    selectedNodeEl.value = stateElement
     toggleColorPicker(true)
   }
 }
@@ -360,12 +391,12 @@ function setIdealColoring() {
  * If it fires, it resets the map coloring.
  */
 function startResetTimer() {
-  if (resetTimer.value) {
+  if (resetTimerId.value) {
     return
   }
 
-  resetTimer.value = setTimeout(() => {
-    resetTimer.value = null
+  resetTimerId.value = setTimeout(() => {
+    resetTimerId.value = null
     resetMapColors()
   }, TWO_MIN_MS)
 }
@@ -376,9 +407,9 @@ function startResetTimer() {
  * @param color The hex color to set the node to, e.g. `'#FF0000'`.
  */
 function setSelectedNodeColor(hexColor: string) {
-  if (selectedState.value) {
-    selectedState.value.style.fill = hexColor
-    mapColoring.value[selectedState.value.id] = hexColor
+  if (selectedNodeEl.value) {
+    selectedNodeEl.value.style.fill = hexColor
+    mapColoring.value[selectedNodeEl.value.id] = hexColor
   }
 }
 
@@ -401,18 +432,18 @@ function toggleColorPicker(show: boolean) {
   resetInteractionTimers()
 
   if (show) {
-    if (selectedState.value) {
-      selectedState.value.style.fill = colorNameHex.SELECTED
+    if (selectedNodeEl.value) {
+      selectedNodeEl.value.style.fill = colorNameHex.SELECTED
     }
   }
   else {
-    if (selectedState.value) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
-      selectedState.value = null
+    if (selectedNodeEl.value) {
+      selectedNodeEl.value.style.fill = mapColoring.value[selectedNodeEl.value.id] || colorNameHex.BLANK
+      selectedNodeEl.value = null
     }
 
-    if (mouseoverState.value) {
-      mouseoverState.value = null
+    if (mouseoverNodeEl.value) {
+      mouseoverNodeEl.value = null
     }
   }
 }
@@ -433,10 +464,10 @@ onMounted(() => {
 <template>
   <div id="map-wrapper" class="map-wrapper" @click="onMapWrapperClicked">
     <UncoloredNodeHelperWidget
-      v-if="uncoloredStates.length > 0"
+      v-if="uncoloredNodes.length > 0"
       ref="uncoloredNodeHelperRef"
       node-name="States"
-      :nodes="uncoloredStates"
+      :nodes="uncoloredNodes"
       :node-label-map="stateAbbrevToName"
       @select-node="selectState"
     />
