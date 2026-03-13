@@ -43,9 +43,9 @@ export function getNeighboringNodesWithSameColor(props: {
   const neighboringNodesWithSameColor: InvalidNodePairColoring[] = []
 
   for (const [nodeId, hexColor] of Object.entries(mapColoring)) {
-    const node = neighborGraph[nodeId]
+    const neighbors = neighborGraph[nodeId]
 
-    for (const neighborNodeId of node.neighbors) {
+    for (const neighborNodeId of neighbors) {
       const neighborColor = mapColoring[neighborNodeId]
 
       if (neighborColor === hexColor && hexColor !== colorNameHex.BLANK) {
