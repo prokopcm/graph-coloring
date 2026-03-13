@@ -3,9 +3,8 @@ export interface GraphNode {
   neighbors: string[]
 }
 
-export interface GraphInterface {
-  [key: string]: GraphNode
-}
+/** A record of graph nodes accessible by a string name */
+export type KeyedGraph = Record<string, GraphNode>
 
 export interface NodeWithColor {
   color: string
@@ -17,7 +16,7 @@ export interface NodeWithColor {
  * @param graphState The graph node (US state) to get the neighbors of
  * @returns An array of objects with the name and color of the neighbors of the given state
  */
-export function getNeighborsWithSameColor (graphState: GraphNode): NodeWithColor[] {
+export function getNeighborsWithSameColor(graphState: GraphNode): NodeWithColor[] {
   const coloredStates = graphState.neighbors.map((neighbor) => {
     const stateElement = document.getElementById(graphState.name)
     const neighborElement = document.getElementById(neighbor)
@@ -37,7 +36,7 @@ export function getNeighborsWithSameColor (graphState: GraphNode): NodeWithColor
   return coloredStates
 }
 
-export function getInvalidColoringNodes (graph: GraphInterface): NodeWithColor[] {
+export function getInvalidColoringNodes(graph: KeyedGraph): NodeWithColor[] {
   return Object.values(graph)
     .map(graphState => getNeighborsWithSameColor(graphState))
     .filter(Boolean)

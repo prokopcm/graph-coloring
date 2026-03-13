@@ -1,8 +1,8 @@
-export interface MapColoring {
+export interface USMapColoring {
   [key: keyof typeof stateAbbrevToName]: string
 }
 
-export const adjacentNeighbors: GraphInterface = {
+export const adjacentNeighbors: KeyedGraph = {
   AL: { name: 'AL', neighbors: ['FL', 'GA', 'MS', 'TN'] },
   AK: { name: 'AK', neighbors: [] },
   AZ: { name: 'AZ', neighbors: ['CA', 'NV', 'NM', 'UT'] },
@@ -67,7 +67,7 @@ export const adjacentNeighbors: GraphInterface = {
   WY: { name: 'WY', neighbors: ['CO', 'ID', 'MT', 'NE', 'SD', 'UT'] },
 }
 
-export const idealColoring: MapColoring = {
+export const idealColoring: USMapColoring = {
   AL: 'c2',
   AK: 'c1',
   AZ: 'c1',
