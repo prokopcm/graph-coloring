@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * A component that displays an SVG map and provides tools to help a user color
+ * regions of the map.
+ */
 import type { MapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'

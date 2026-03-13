@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import InteractiveMapColorer from '~/components/InteractiveMapColorer.vue'
+
 const isiOS = window && /iPad|iPhone|iPod/.test(window.navigator.userAgent)
 </script>
 
@@ -13,7 +15,7 @@ const isiOS = window && /iPad|iPhone|iPod/.test(window.navigator.userAgent)
         <div class="intro">
           Click/tap on a state to color it! States that touch must be different colors.
         </div>
-        <InteractiveUSMap />
+        <InteractiveMapColorer />
         <div class="button-wrapper" />
       </section>
       <section class="spacer">
