@@ -1,16 +1,20 @@
 <script setup lang="ts">
-const props = defineProps({ selected: String })
+const props = defineProps<{ selected: string }>()
 
-function getLinkStyle(link: string) {
+/**
+ * Get the selection style CSS class for a link
+ * @param link the link name to get the selection style CSS classfor
+ */
+function getLinkSelectionStyle(link: string) {
   return link === props.selected ? 'text-link' : 'unselected'
 }
 </script>
 
 <template>
   <div class="flex justify-between site-header" tabindex="-1">
-    <p class="font_0 header-hero">
+    <p class="header-hero">
       <NuxtLink to="/">
-        <span class="color_15 md:m-4 sm:m-4">
+        <span class="color_1 md:m-4 sm:m-4">
           Coloring, Creative Math, and Computers
         </span>
       </NuxtLink>
@@ -18,14 +22,14 @@ function getLinkStyle(link: string) {
     <nav class="" aria-label="Site">
       <ul class="order-last">
         <li class="pr-4">
-          <NuxtLink :class="getLinkStyle('home')" to="/">
+          <NuxtLink :class="getLinkSelectionStyle('home')" to="/">
             <span class="p-1 text-right">
               Home
             </span>
           </NuxtLink>
         </li>
         <li class="pr-4">
-          <NuxtLink :class="getLinkStyle('about')" to="/about">
+          <NuxtLink :class="getLinkSelectionStyle('about')" to="/about">
             <span class="p-1 text-right">
               About
             </span>
@@ -36,24 +40,9 @@ function getLinkStyle(link: string) {
   </div>
 </template>
 
-<style>
-.site-header {
-  height: 60px;
-  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
-  position: relative;
-  z-index: 1;
-  align-items: center;
-}
-
+<style scoped>
 .header-hero {
-  line-height: 1.41em;
-  font-size: 22px;
-  font-weight: 400;
-}
-
-ul {
-  list-style: none;
-  text-align: right;
+  font: var(--font_0);
 }
 
 li {
@@ -63,33 +52,33 @@ li {
   box-sizing: border-box;
   overflow: visible;
   visibility: inherit;
-}
 
-li span {
-  font-size: 18px;
-  font-weight: 400;
-}
-
-.menu-links {
-  color: rgb(var(--txts, var(--color_14)));
-}
-
-.insta-link {
-  position: relative;
-  top: 13px;
-}
-
-.instagram {
-  width: 20px;
-  height: 20px;
-  object-fit: cover;
+  span {
+    font-size: 18px;
+    font-weight: 400;
+  }
 }
 
 .selected {
   text-decoration: underline 0.3rem;
 }
 
-.unselected:hover {
-  color: #333;
+.site-header {
+  height: 60px;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+  align-items: center;
+}
+
+ul {
+  list-style: none;
+  text-align: right;
+}
+
+.unselected {
+  &:hover {
+    color: #333;
+  }
 }
 </style>

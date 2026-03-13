@@ -115,60 +115,50 @@
 
 <style scoped>
 a {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .content {
-    margin: auto;
-    max-width: 940px;
+  margin: auto;
+  max-width: 940px;
 }
 
 .main-content {
-    margin: auto;
-}
-
-.hero-image-wrapper {
-    padding: 52px 0px;
-}
-
-.header {
-    font: var(--font_6);
-    /* font-weight: 300; */
-    text-align: left;
+  margin: auto;
 }
 
 .subhero-text {
-    font-size: 24px;
-    text-align: left;
-    line-height: 2.2rem;
+  font-size: 24px;
+  text-align: left;
+  line-height: 2.2rem;
 }
 
 .text-body {
-    text-align: left;
-    max-width: none;
+  text-align: left;
+  max-width: none;
 }
 
 .note {
-    text-align: left;
-    background: #faf6de;
-    padding: 12px;
-    border-radius: 4px;
+  text-align: left;
+  background: #faf6de;
+  padding: 12px;
+  border-radius: 4px;
 }
 
 .algorithm-steps {
-    text-align: left;
-    list-style-type: disc;
-    margin: auto;
-    padding: initial;
-    list-style: disc;
-    display: block;
-    list-style-type: disc;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    padding-inline-start: 40px;
-    unicode-bidi: isolate;
+  text-align: left;
+  list-style-type: disc;
+  margin: auto;
+  padding: initial;
+  list-style: disc;
+  display: block;
+  list-style-type: disc;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
+  unicode-bidi: isolate;
 }
 
 .pdf-image {
