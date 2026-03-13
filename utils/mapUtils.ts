@@ -1,10 +1,5 @@
-import type { AbstractNodeColor } from '~/utils/graphUtils'
+import type { AbstractNodeColor, MapColoring } from '~/utils/graphUtils'
 import { colorNameHex } from '~/data/colors'
-
-/** A record with the key the as the node id and the value the hex color of the node */
-export interface MapColoring {
-  [key: string]: string
-}
 
 export interface MapNodeData {
   /** The SVG path data for the node's shape */
@@ -15,6 +10,9 @@ export interface MapNodeData {
 
   /** The ideal color for the node */
   idealColor: AbstractNodeColor
+
+  /** The ids of nodes adjacent to this node */
+  neighbors: string[]
 
   /** The human-readable display name of the node */
   name: string

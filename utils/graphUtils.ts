@@ -1,4 +1,3 @@
-import type { MapColoring } from '~/utils/mapUtils'
 import { colorNameHex } from '~/data/colors'
 
 /** An abstract representation of which of the 4 possible colors a node in a map can have */
@@ -18,17 +17,13 @@ export interface InvalidNodePairColoring {
   nodeId2: string
 }
 
-/** A node in a neighbor graph */
-export interface NeighborGraphNode {
-  /** The id of the node */
-  id: string
-
-  /** A list of node ids that the */
-  neighbors: string[]
+/** A record with the key the as the node id and the value the hex color of the node */
+export interface MapColoring {
+  [key: string]: string
 }
 
 /** A record of graph nodes with their neighbors keyed by each node's id */
-export type NeighborGraph = Record<string, NeighborGraphNode>
+export type NeighborGraph = Record<string, string[]>
 
 /**
  * Given a graph and a coloring, returns a list of nodes that are neighbors and have the same color.
