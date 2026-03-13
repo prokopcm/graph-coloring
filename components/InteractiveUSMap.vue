@@ -2,7 +2,7 @@
 import type { USMapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
-import { colorsList } from '~/data/colors'
+import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
 
@@ -13,7 +13,7 @@ const TWO_MIN_MS = ONE_MIN_MS * 2
 const _mapColoring: USMapColoring = {}
 
 for (const abbrev in stateAbbrevToName) {
-  _mapColoring[abbrev] = '#FFFFFF'
+  _mapColoring[abbrev] = colorNameHex.BLANK
 }
 
 const currentDate = new Date()
@@ -37,14 +37,14 @@ const showInfoDialog = ref(false)
 const showSuccessMessage = ref(false)
 
 const colorsUsed = computed(() => {
-  const used = new Set(Object.values(mapColoring.value).filter(color => color !== '#FFFFFF'))
+  const used = new Set(Object.values(mapColoring.value).filter(color => color !== colorNameHex.BLANK))
 
   return used.size
 })
 
 const uncoloredStates = computed(() => {
   const uncolored = Object.entries(mapColoring.value)
-    .filter(([_, color]) => color === '#FFFFFF')
+    .filter(([_, color]) => color === colorNameHex.BLANK)
     .map(([state, _]) => state)
 
   return uncolored.sort((a, b) => stateAbbrevToName[a].localeCompare(stateAbbrevToName[b]))
@@ -101,14 +101,14 @@ function closeAreYouStillThereDialog() {
 function getFillColorForNode(stateId: string) {
   if (selectedState.value) {
     if (selectedState.value.id === stateId) {
-      return '#CCFFEE'
+      return colorNameHex.SELECTED
     }
   }
   else if (mouseoverState.value && mouseoverState.value.id === stateId) {
-    return '#CCFFEE'
+    return colorNameHex.SELECTED
   }
 
-  return mapColoring.value[stateId] || '#FFFFFF'
+  return mapColoring.value[stateId] || colorNameHex.BLANK
 }
 
 function mapWrapperClicked(event: MouseEvent) {
@@ -120,7 +120,7 @@ function mapWrapperClicked(event: MouseEvent) {
 function mouseEnterState(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
-  if (stateElement.tagName === 'path' && stateElement.id && mapColoring.value[stateElement.id] === '#FFFFFF') {
+  if (stateElement.tagName === 'path' && stateElement.id && mapColoring.value[stateElement.id] === colorNameHex.BLANK) {
     mouseoverState.value = stateElement
   }
 }
@@ -193,7 +193,7 @@ function stateClicked(event: MouseEvent) {
 
   if (stateElement.tagName === 'path' && stateElement.id) {
     if (selectedState.value && selectedState.value.id !== stateElement.id) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || '#FFFFFF'
+      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
     }
 
     // get page width
@@ -225,12 +225,12 @@ function toggleColorPicker(show: boolean) {
 
   if (show) {
     if (selectedState.value) {
-      selectedState.value.style.fill = '#CCFFEE'
+      selectedState.value.style.fill = colorNameHex.SELECTED
     }
   }
   else {
     if (selectedState.value) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || '#FFFFFF'
+      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
       selectedState.value = null
     }
 
@@ -248,7 +248,7 @@ function resetStateColors() {
   showInfoDialog.value = false
 
   for (const state in mapColoring.value) {
-    mapColoring.value[state] = '#FFFFFF'
+    mapColoring.value[state] = colorNameHex.BLANK
   }
 
   selectedState.value = null
@@ -262,7 +262,7 @@ function resetStateColors() {
     const stateElement = document.getElementById(stateId)
 
     if (stateElement) {
-      stateElement.style.fill = '#FFFFFF'
+      stateElement.style.fill = colorNameHex.BLANK
     }
   }
 
@@ -277,7 +277,7 @@ function selectState(stateId: string) {
 
   if (stateElement && stateElement.tagName === 'path') {
     if (selectedState.value && selectedState.value.id !== stateId) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || '#FFFFFF'
+      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
     }
 
     // Position the color picker near the state element
