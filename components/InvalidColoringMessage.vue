@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * A message that displays when two neighboring nodes are the same color and
+ * prompts the user to fix it. Emits an event when tapped.
+ */
 defineProps<{
   nodeId1: string
   nodeId2: string

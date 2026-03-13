@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * A component that displays a color picker with a list of colors to choose from.
+ * When a color is clicked, the color is emitted in an event.
+ */
 import type { ColorInfo } from '~/data/colors'
 
 const props = defineProps<{

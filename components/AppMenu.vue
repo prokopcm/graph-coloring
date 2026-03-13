@@ -1,9 +1,13 @@
 <script setup lang="ts">
+/**
+ * A header component that displays the project's title and navigation links.
+ */
 const props = defineProps<{ selected: string }>()
 
 /**
  * Get the selection style CSS class for a link
- * @param link the link name to get the selection style CSS classfor
+ * @param link the link name to get the selection style CSS class for
+ * @returns the CSS class for the link
  */
 function getLinkSelectionStyle(link: string) {
   return link === props.selected ? 'text-link' : 'unselected'

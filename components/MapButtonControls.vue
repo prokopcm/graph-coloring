@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * A component that displays buttons for the user to control the map coloring.
+ * Allows them to auto-color the map, reset the map, and open the info dialog.
+ */
 const emit = defineEmits<{
   (event: 'autoColor'): void
   (event: 'reset'): void

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * A widget that displays a list of nodes that are uncolored and prompts
+ * the user to color them. Emits an event when a node is clicked.
+ */
 import { ref, watch } from 'vue'
 
 const props = defineProps<{

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * A dialog that prompts the user to confirm they are still using the app
+ * after they've not interacted with it for a while.
+ */
 defineEmits(['close'])
 </script>
 

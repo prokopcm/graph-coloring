@@ -24,6 +24,7 @@ const props = defineProps<{
 }>()
 
 const { neighborGraph, nodeIdToName, idealColoring } = useMapDataLoader(props.mapData)
+
 /** Whether the admin mode is enabled. Disables reset timers. */
 const adminMode = ref(false)
 

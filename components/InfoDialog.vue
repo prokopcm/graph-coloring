@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * A dialog that displays information about the app and how it works.
+ */
 defineEmits(['close'])
 </script>
 
