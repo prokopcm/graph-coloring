@@ -5,6 +5,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import AdminButton from '~/components/AdminButton.vue'
 import ColorPicker from '~/components/ColorPicker.vue'
 import MapButtonControls from '~/components/MapButtonControls.vue'
+import MapCompleteMessage from '~/components/MapCompleteMessage.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
 import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, nodeIdToName } from '~/data/mapData'
@@ -480,27 +481,11 @@ onMounted(() => {
       <br>
       Tap on me to fix!
     </div>
-    <div
+    <MapCompleteMessage
       v-if="showSuccessMessage"
-      class="absolute ml-2.5 success-message"
-    >
-      <h2 style="margin-top: 0; font-size: 24px;">
-        Congratulations! 🎉
-      </h2>
-      <p class="mb-2">
-        You successfully colored the map!
-      </p>
-      <p>You used {{ colorsUsed }} colors.</p>
-      <br>
-      <div
-        class="inline mr-1 small-reset-button"
-        style="background-color: #FFFFFF; color: black; padding: 4px 8px 4px 13px; border-radius: 12px; border: 1px solid #000; cursor: pointer; font-size: 14px;"
-        @click.prevent="onResetButtonClicked"
-      >
-        Reset
-      </div>
-      <i>the map to try coloring again!</i>
-    </div>
+      :colors-used="colorsUsed"
+      @reset="onResetButtonClicked"
+    />
     <svg
       class="svg-map"
       xmlns="http://www.w3.org/2000/svg"
@@ -584,17 +569,6 @@ onMounted(() => {
   z-index: 89;
   max-width: 400px;
   cursor: pointer;
-}
-
-.success-message {
-  background-color: #4CAF50;
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  z-index: 1000;
-  text-align: center;
-  max-width: 215px;
 }
 
 .svg-map {
