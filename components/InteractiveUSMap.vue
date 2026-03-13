@@ -499,7 +499,7 @@ onMounted(() => {
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  z-index: 99;
+  z-index: 89;
   max-width: 400px;
   cursor: pointer;
 }
