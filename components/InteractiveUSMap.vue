@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { USMapColoring } from '~/data/mapData'
+import type { MapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
 import AdminButton from '~/components/AdminButton.vue'
@@ -7,16 +7,11 @@ import ColorPicker from '~/components/ColorPicker.vue'
 import MapButtonControls from '~/components/MapButtonControls.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
 import { colorNameHex, colorsList } from '~/data/colors'
-import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
+import { adjacentNeighbors, idealColoring, mapData, nodeIdToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
 import { isSciFest, TWO_MIN_MS } from '~/utils/dateTimeUtils'
 import { getNeighboringNodesWithSameColor } from '~/utils/graphUtils'
-
-const _mapColoring: USMapColoring = {}
-
-for (const abbrev in stateAbbrevToName) {
-  _mapColoring[abbrev] = colorNameHex.BLANK
-}
+import { initializeMapColoring } from '~/utils/mapUtils'
 
 /** Whether the admin mode is enabled. Disables reset timers. */
 const adminMode = ref(false)
@@ -31,7 +26,7 @@ const colorPickerY = ref(0)
 const interactionTimerId = ref<number | null>(null)
 
 /** A record with the key the state id and the value the hex color of the state */
-const mapColoring = ref<USMapColoring>(_mapColoring)
+const mapColoring = ref<MapColoring>(initializeMapColoring(mapData))
 
 /** The SVG state element that the mouse is hovering over */
 const mouseoverNodeEl = ref<HTMLElement | null>(null)
@@ -73,7 +68,7 @@ const uncoloredNodes = computed(() => {
     .filter(([_, color]) => color === colorNameHex.BLANK)
     .map(([state, _]) => state)
 
-  return uncolored.sort((a, b) => stateAbbrevToName[a] < stateAbbrevToName[b] ? -1 : 1)
+  return uncolored.sort((a, b) => nodeIdToName[a] < nodeIdToName[b] ? -1 : 1)
 })
 
 const completedMap = computed(() => {
@@ -473,7 +468,7 @@ onMounted(() => {
       ref="uncoloredNodeHelperRef"
       node-name="States"
       :nodes="uncoloredNodes"
-      :node-label-map="stateAbbrevToName"
+      :node-label-map="nodeIdToName"
       @select-node="selectState"
     />
     <div
@@ -481,7 +476,7 @@ onMounted(() => {
       class="invalid-coloring toast-alert"
       @click="selectState(nodesWithInvalidColorings[0].nodeId1)"
     >
-      {{ stateAbbrevToName[nodesWithInvalidColorings[0].nodeId1] }} and {{ stateAbbrevToName[nodesWithInvalidColorings[0].nodeId2] }} are both {{ colorToName(nodesWithInvalidColorings[0].hexColor) }}.
+      {{ nodeIdToName[nodesWithInvalidColorings[0].nodeId1] }} and {{ nodeIdToName[nodesWithInvalidColorings[0].nodeId2] }} are both {{ colorToName(nodesWithInvalidColorings[0].hexColor) }}.
       <br>
       Tap on me to fix!
     </div>
