@@ -3,7 +3,7 @@
  * A component that displays an SVG map and provides tools to help a user color
  * regions of the map.
  */
-import type { MapColoring } from '~/data/mapData'
+import type { MapColoring } from '~/utils/graphUtils'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
 import AdminButton from '~/components/AdminButton.vue'
@@ -14,7 +14,7 @@ import MapCompleteMessage from '~/components/MapCompleteMessage.vue'
 import MapViewer from '~/components/MapViewer.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
 import { colorNameHex, colorsList } from '~/data/colors'
-import { adjacentNeighbors, idealColoring, mapData, nodeIdToName } from '~/data/mapData'
+import { idealColoring, mapData, neighborGraph, nodeIdToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
 import { isSciFest, TWO_MIN_MS } from '~/utils/dateTimeUtils'
 import { getNeighboringNodesWithSameColor } from '~/utils/graphUtils'
@@ -30,7 +30,7 @@ const colorPickerX = ref(0)
 const colorPickerY = ref(0)
 
 /** The id of the timeout for the interaction timer */
-const interactionTimerId = ref<number | null>(null)
+const interactionTimerId = ref<ReturnType<typeof setTimeout> | null>(null)
 
 /** A record with the key the state id and the value the hex color of the state */
 const mapColoring = ref<MapColoring>(initializeMapColoring(mapData))
@@ -42,7 +42,7 @@ const mouseoverNodeId = ref<string | null>(null)
 const nodesWithInvalidColorings = ref<InvalidNodePairColoring[]>([])
 
 /** The id of the timeout for the reset timer */
-const resetTimerId = ref<number | null>(null)
+const resetTimerId = ref<ReturnType<typeof setTimeout> | null>(null)
 
 /** The node id of the state/node that is selected */
 const selectedNodeEl = ref<HTMLElement | null>(null)
@@ -211,7 +211,7 @@ function onColorPickerColorSelected(hexColor: string) {
 
   nodesWithInvalidColorings.value = getNeighboringNodesWithSameColor({
     mapColoring: mapColoring.value,
-    neighborGraph: adjacentNeighbors,
+    neighborGraph,
     lastUpdatedNodeId: selectedNodeEl?.value?.id,
   })
 }
