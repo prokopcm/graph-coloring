@@ -32,6 +32,7 @@ export const adjacentNeighbors: NeighborGraph = {
     neighbors: ['KS', 'NM', 'NE', 'OK', 'UT', 'WY'],
   },
   CT: { id: 'CT', neighbors: ['MA', 'NY', 'RI'] },
+  DC: { id: 'DC', neighbors: [] },
   DE: { id: 'DE', neighbors: ['MD', 'NJ', 'PA'] },
   FL: { id: 'FL', neighbors: ['AL', 'GA'] },
   GA: { id: 'GA', neighbors: ['AL', 'FL', 'NC', 'SC', 'TN'] },
