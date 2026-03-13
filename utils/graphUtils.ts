@@ -1,3 +1,6 @@
+import type { USMapColoring } from '~/data/mapData'
+import { colorNameHex } from '~/data/colors'
+
 export interface GraphNode {
   name: string
   neighbors: string[]
@@ -6,54 +9,52 @@ export interface GraphNode {
 /** A record of graph nodes accessible by a string name */
 export type KeyedGraph = Record<string, GraphNode>
 
-export interface NodeWithColor {
-  color: string
-  name: string
+export interface InvalidNodePairColoring {
+  hexColor: string
+  nodeId1: string
+  nodeId2: string
 }
 
 /**
- * Returns an array of objects with the name and color of the neighbors of the given state
- * @param graphState The graph node (US state) to get the neighbors of
- * @returns An array of objects with the name and color of the neighbors of the given state
+ * Given a graph and a coloring, returns a list of nodes that are neighbors and have the same color.
+ * @param props An object with the following properties:
+ * @param props.neighborGraph The graph of neighboring nodes
+ * @param props.mapColoring The coloring of the graph
+ * @param [props.lastUpdatedNodeId] The id of the node that was last updated
+ * @returns A list of nodes that are neighbors and have the same color
  */
-export function getNeighborsWithSameColor(graphState: GraphNode): NodeWithColor[] {
-  const coloredStates = graphState.neighbors.map((neighbor) => {
-    const stateElement = document.getElementById(graphState.name)
-    const neighborElement = document.getElementById(neighbor)
-    const stateIsColored = stateElement && stateElement.style.fill !== 'rgb(255, 255, 255)'
-    const stateAndNeighborHaveSameColor = stateElement && neighborElement && stateElement.style.fill === neighborElement.style.fill
+export function getNeighboringNodesWithSameColor(props: {
+  mapColoring: USMapColoring
+  neighborGraph: KeyedGraph
+  lastUpdatedNodeId?: string
+}): InvalidNodePairColoring[] {
+  const { mapColoring, neighborGraph, lastUpdatedNodeId } = props
 
-    if (stateIsColored && stateAndNeighborHaveSameColor) {
-      return {
-        name: neighbor,
-        color: neighborElement.style.fill,
+  const neighboringNodesWithSameColor: InvalidNodePairColoring[] = []
+
+  for (const [nodeId, hexColor] of Object.entries(mapColoring)) {
+    const node = neighborGraph[nodeId]
+
+    for (const neighborNodeId of node.neighbors) {
+      const neighborColor = mapColoring[neighborNodeId]
+
+      if (neighborColor === hexColor && hexColor !== colorNameHex.BLANK) {
+        neighboringNodesWithSameColor.push({
+          nodeId1: nodeId,
+          nodeId2: neighborNodeId,
+          hexColor,
+        })
       }
     }
+  }
 
-    return null
-  }).filter(state => !!state)
+  if (lastUpdatedNodeId !== undefined) {
+    neighboringNodesWithSameColor.sort((nodeInfo) => {
+      const nodeIsLastUpdated = nodeInfo.nodeId1 === lastUpdatedNodeId || nodeInfo.nodeId2 === lastUpdatedNodeId
 
-  return coloredStates
-}
-
-export function getInvalidColoringNodes(graph: KeyedGraph): NodeWithColor[] {
-  return Object.values(graph)
-    .map(graphState => getNeighborsWithSameColor(graphState))
-    .filter(Boolean)
-    .flat(1)
-    .filter((value, index, self) => {
-      const sameIndex = self.findIndex(item => item.name === value.name && item.color === value.color) === index
-
-      return sameIndex
+      return nodeIsLastUpdated ? -1 : 1
     })
-    .filter(value => value !== null && value !== undefined)
-    .sort((a, b) => {
-      const nameA = a.name.toUpperCase()
-      const nameB = b.name.toUpperCase()
-      if (nameA < nameB)
-        return -1
-      if (nameA > nameB)
-        return 1
-      return 0
-    })
+  }
+
+  return neighboringNodesWithSameColor
 }

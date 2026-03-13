@@ -10,6 +10,7 @@ import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
 import { isSciFest, TWO_MIN_MS } from '~/utils/dateTimeUtils'
+import { getNeighboringNodesWithSameColor } from '~/utils/graphUtils'
 
 const _mapColoring: USMapColoring = {}
 
@@ -36,7 +37,7 @@ const mapColoring = ref<USMapColoring>(_mapColoring)
 const mouseoverNodeEl = ref<HTMLElement | null>(null)
 
 /** A list of pairs of nodes that are neighbors and have the same color */
-const nodesWithInvalidColorings = ref<NodeWithColor[]>([])
+const nodesWithInvalidColorings = ref<InvalidNodePairColoring[]>([])
 
 /** The id of the timeout for the reset timer */
 const resetTimerId = ref<number | null>(null)
@@ -232,7 +233,11 @@ function onColorPickerColorSelected(hexColor: string) {
 
   toggleColorPicker(false)
 
-  nodesWithInvalidColorings.value = getInvalidColoringNodes(adjacentNeighbors)
+  nodesWithInvalidColorings.value = getNeighboringNodesWithSameColor({
+    mapColoring: mapColoring.value,
+    neighborGraph: adjacentNeighbors,
+    lastUpdatedNodeId: selectedNodeEl?.value?.id,
+  })
 }
 
 /**
@@ -474,9 +479,9 @@ onMounted(() => {
     <div
       v-if="nodesWithInvalidColorings.length > 1"
       class="invalid-coloring toast-alert"
-      @click="selectState(nodesWithInvalidColorings[0].name)"
+      @click="selectState(nodesWithInvalidColorings[0].nodeId1)"
     >
-      {{ stateAbbrevToName[nodesWithInvalidColorings[0].name] }} and {{ stateAbbrevToName[nodesWithInvalidColorings[1].name] }} are both {{ colorToName(nodesWithInvalidColorings[0].color) }}.
+      {{ stateAbbrevToName[nodesWithInvalidColorings[0].nodeId1] }} and {{ stateAbbrevToName[nodesWithInvalidColorings[0].nodeId2] }} are both {{ colorToName(nodesWithInvalidColorings[0].hexColor) }}.
       <br>
       Tap on me to fix!
     </div>
