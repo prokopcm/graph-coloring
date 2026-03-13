@@ -1,19 +1,29 @@
 import type { USMapColoring } from '~/data/mapData'
 import { colorNameHex } from '~/data/colors'
 
-export interface GraphNode {
-  name: string
+/** A pair of nodes in a graph that are neighbors and have the same color */
+export interface InvalidNodePairColoring {
+  /** The hex color that the two neighboring nodes share */
+  hexColor: string
+
+  /** The id of the first node */
+  nodeId1: string
+
+  /** The id of the second node */
+  nodeId2: string
+}
+
+/** A node in a neighbor graph */
+export interface NeighborGraphNode {
+  /** The id of the node */
+  id: string
+
+  /** A list of node ids that the */
   neighbors: string[]
 }
 
-/** A record of graph nodes accessible by a string name */
-export type KeyedGraph = Record<string, GraphNode>
-
-export interface InvalidNodePairColoring {
-  hexColor: string
-  nodeId1: string
-  nodeId2: string
-}
+/** A record of graph nodes with their neighbors keyed by each node's id */
+export type NeighborGraph = Record<string, NeighborGraphNode>
 
 /**
  * Given a graph and a coloring, returns a list of nodes that are neighbors and have the same color.
@@ -21,11 +31,11 @@ export interface InvalidNodePairColoring {
  * @param props.neighborGraph The graph of neighboring nodes
  * @param props.mapColoring The coloring of the graph
  * @param [props.lastUpdatedNodeId] The id of the node that was last updated
- * @returns A list of nodes that are neighbors and have the same color
+ * @returns A list of pairs of nodes that are neighbors and have the same color
  */
 export function getNeighboringNodesWithSameColor(props: {
   mapColoring: USMapColoring
-  neighborGraph: KeyedGraph
+  neighborGraph: NeighborGraph
   lastUpdatedNodeId?: string
 }): InvalidNodePairColoring[] {
   const { mapColoring, neighborGraph, lastUpdatedNodeId } = props
@@ -48,9 +58,10 @@ export function getNeighboringNodesWithSameColor(props: {
     }
   }
 
+  // Optionally sort the list to put the node that was last updated at the front
   if (lastUpdatedNodeId !== undefined) {
-    neighboringNodesWithSameColor.sort((nodeInfo) => {
-      const nodeIsLastUpdated = nodeInfo.nodeId1 === lastUpdatedNodeId || nodeInfo.nodeId2 === lastUpdatedNodeId
+    neighboringNodesWithSameColor.sort(({ nodeId1, nodeId2 }: InvalidNodePairColoring) => {
+      const nodeIsLastUpdated = nodeId1 === lastUpdatedNodeId || nodeId2 === lastUpdatedNodeId
 
       return nodeIsLastUpdated ? -1 : 1
     })
