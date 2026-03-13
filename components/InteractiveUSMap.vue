@@ -87,6 +87,16 @@ watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => 
 })
 
 /**
+ * Clears the interaction timer if it is set.
+ */
+function cancelInteractionTimer() {
+  if (interactionTimer.value) {
+    clearTimeout(interactionTimer.value)
+    interactionTimer.value = null
+  }
+}
+
+/**
  * Clears the map reset timer if it is set.
  */
 function cancelResetTimer() {
@@ -126,22 +136,6 @@ function closeDialogs() {
 }
 
 /**
- * Toggles the info dialog.
- * @param show Whether to show the dialog.
- */
-function toggleInfoDialog(show: boolean) {
-  showInfoDialog.value = show
-}
-
-/**
- * Closes the are you still there dialog.
- * @param show Whether to show the dialog.
- */
-function toggleAreYouStillThereDialog(show: boolean) {
-  showAreYouStillThereDialog.value = show
-}
-
-/**
  * Returns the fill color for a given node (state) based on the selected state and mouseover state.
  * @param stateId The ID of the state to get the fill color for, e.g. `'CA'`.
  * @returns The hex fill color to apply to the given node, e.g. `'#FF0000'`.
@@ -159,13 +153,12 @@ function getFillColorForNode(stateId: string) {
   return mapColoring.value[stateId] || colorNameHex.BLANK
 }
 
-function mapWrapperClicked(event: MouseEvent) {
-  if (event.target instanceof HTMLElement && event.target.id === 'map-wrapper') {
-    toggleColorPicker(false)
-  }
-}
-
-function mouseEnterState(event: MouseEvent) {
+/**
+ * Handles the mouse entering a state/node and sets the mouseoverState
+ * to the state element if it is uncolored.
+ * @param event The mouse enter event.
+ */
+function onMouseEnterNode(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id && mapColoring.value[stateElement.id] === colorNameHex.BLANK) {
@@ -173,20 +166,29 @@ function mouseEnterState(event: MouseEvent) {
   }
 }
 
-function mouseOutState(event: MouseEvent) {
+/**
+ * Handles the mouse leaving a state/node and resets the mouseoverState.
+ * @param event The mouse leave event.
+ */
+function onMouseOutNode(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id) {
     if (selectedState.value && selectedState.value.id === stateElement.id) {
       return
     }
+
     if (mapColoring.value[stateElement.id]) {
       stateElement.style.fill = mapColoring.value[stateElement.id]
     }
+
     mouseoverState.value = null
   }
 }
 
+/**
+ * Handles the admin button being clicked and toggles the admin mode.
+ */
 function onAdminButtonClick() {
   adminClickCount.value++
 
@@ -206,45 +208,39 @@ function onAdminButtonClick() {
   }
 }
 
-function openInfoDialog() {
-  toggleInfoDialog(true)
-  resetInteractionTimer()
-}
+/**
+ * Sets the color of the selected node (state) to a given hex color after a user
+ * has selected a color from the color picker.
+ * Also hides the color picker and resets the reset and interaction timers.
+ * @param color The hex color to set the node to, e.g. `'#FF0000'`.
+ */
+function onColorPickerColorSelected(hexColor: string) {
+  resetInteractionTimers()
 
-function resetInteractionTimer() {
-  cancelInteractionTimer()
-
-  if (uncoloredStates.value.length === 50 || !isSciFest || adminMode.value) {
-    return
+  if (selectedState.value) {
+    setSelectedNodeColor(hexColor)
   }
 
-  interactionTimer.value = setTimeout(() => {
-    interactionTimer.value = null
-    toggleAreYouStillThereDialog(true)
-    startResetTimer()
-  }, TWO_MIN_MS)
+  toggleColorPicker(false)
+
+  invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
 }
 
 /**
- * Starts the reset timer if it isn't already started.
- * If it fires, it resets the map coloring.
+ * Handles the map wrapper being clicked or tapped and hides the color picker.
+ * @param event The click or tap event.
  */
-function startResetTimer() {
-  if (resetTimer.value) {
-    return
+function onMapWrapperClicked(event: PointerEvent) {
+  if (event.target instanceof HTMLElement && event.target.id === 'map-wrapper') {
+    toggleColorPicker(false)
   }
-
-  resetTimer.value = setTimeout(() => {
-    resetTimer.value = null
-    resetStateColors()
-  }, TWO_MIN_MS)
 }
 
 /**
  * Handles a state being clicked on the map.
  * @param event The click or tap event.
  */
-function stateClicked(event: PointerEvent) {
+function onNodeClicked(event: PointerEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id) {
@@ -267,40 +263,18 @@ function stateClicked(event: PointerEvent) {
 }
 
 /**
- * Clears the interaction timer if it is set.
+ * Handles the reset button being clicked and resets the graph.
  */
-function cancelInteractionTimer() {
-  if (interactionTimer.value) {
-    clearTimeout(interactionTimer.value)
-    interactionTimer.value = null
-  }
+function onResetButtonClicked() {
+  resetMapColors()
 }
 
 /**
- * Toggles the color picker and highlights the selected state in the selected fill color.
- * Also resets the interaction timers.
- * @param show Whether to show the color picker.
+ * Opens the info dialog.
  */
-function toggleColorPicker(show: boolean) {
-  showColorPicker.value = show
-
-  resetInteractionTimers()
-
-  if (show) {
-    if (selectedState.value) {
-      selectedState.value.style.fill = colorNameHex.SELECTED
-    }
-  }
-  else {
-    if (selectedState.value) {
-      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
-      selectedState.value = null
-    }
-
-    if (mouseoverState.value) {
-      mouseoverState.value = null
-    }
-  }
+function openInfoDialog() {
+  toggleInfoDialog(true)
+  resetInteractionTimer()
 }
 
 /**
@@ -311,11 +285,25 @@ function resetInteractionTimers() {
   cancelResetTimer()
 }
 
+function resetInteractionTimer() {
+  cancelInteractionTimer()
+
+  if (uncoloredStates.value.length === 50 || !isSciFest || adminMode.value) {
+    return
+  }
+
+  interactionTimer.value = setTimeout(() => {
+    interactionTimer.value = null
+    toggleAreYouStillThereDialog(true)
+    startResetTimer()
+  }, TWO_MIN_MS)
+}
+
 /**
  * Resets the state colors to blank and closes all dialogs.
  * Also resets the interaction timers.
  */
-function resetStateColors() {
+function resetMapColors() {
   resetInteractionTimers()
 
   closeDialogs()
@@ -371,36 +359,6 @@ function selectState(stateId: string) {
 }
 
 /**
- * Sets the color of the selected node (state) to a given hex color after a user
- * has selected a color from the color picker.
- * Also hides the color picker and resets the reset and interaction timers.
- * @param color The hex color to set the node to, e.g. `'#FF0000'`.
- */
-function onColorPickerColorSelected(hexColor: string) {
-  resetInteractionTimers()
-
-  if (selectedState.value) {
-    setSelectedNodeColor(hexColor)
-  }
-
-  toggleColorPicker(false)
-
-  invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
-}
-
-/**
- * Sets the color of the selected node (state) to a given hex color.
- * Also hides the color picker and resets the reset and interaction timers.
- * @param color The hex color to set the node to, e.g. `'#FF0000'`.
- */
-function setSelectedNodeColor(hexColor: string) {
-  if (selectedState.value) {
-    selectedState.value.style.fill = hexColor
-    mapColoring.value[selectedState.value.id] = hexColor
-  }
-}
-
-/**
  * Auto-colors the map using an ideal coloring. Just overrides the current coloring.
  */
 function setIdealColoring() {
@@ -419,13 +377,83 @@ function setIdealColoring() {
   }
 }
 
+/**
+ * Starts the reset timer if it isn't already started.
+ * If it fires, it resets the map coloring.
+ */
+function startResetTimer() {
+  if (resetTimer.value) {
+    return
+  }
+
+  resetTimer.value = setTimeout(() => {
+    resetTimer.value = null
+    resetMapColors()
+  }, TWO_MIN_MS)
+}
+
+/**
+ * Sets the color of the selected node (state) to a given hex color.
+ * Also hides the color picker and resets the reset and interaction timers.
+ * @param color The hex color to set the node to, e.g. `'#FF0000'`.
+ */
+function setSelectedNodeColor(hexColor: string) {
+  if (selectedState.value) {
+    selectedState.value.style.fill = hexColor
+    mapColoring.value[selectedState.value.id] = hexColor
+  }
+}
+
+/**
+ * Closes the are you still there dialog.
+ * @param show Whether to show the dialog.
+ */
+function toggleAreYouStillThereDialog(show: boolean) {
+  showAreYouStillThereDialog.value = show
+}
+
+/**
+ * Toggles the color picker and highlights the selected state in the selected fill color.
+ * Also resets the interaction timers.
+ * @param show Whether to show the color picker.
+ */
+function toggleColorPicker(show: boolean) {
+  showColorPicker.value = show
+
+  resetInteractionTimers()
+
+  if (show) {
+    if (selectedState.value) {
+      selectedState.value.style.fill = colorNameHex.SELECTED
+    }
+  }
+  else {
+    if (selectedState.value) {
+      selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || colorNameHex.BLANK
+      selectedState.value = null
+    }
+
+    if (mouseoverState.value) {
+      mouseoverState.value = null
+    }
+  }
+}
+
+/**
+ * Toggles the info dialog.
+ * @param show Whether to show the dialog.
+ */
+function toggleInfoDialog(show: boolean) {
+  showInfoDialog.value = show
+}
+
 onMounted(() => {
-  resetStateColors()
+  resetMapColors()
 })
 </script>
 
 <template>
-  <div id="map-wrapper" class="map-wrapper" @click="mapWrapperClicked">
+  <div id="map-wrapper" class="map-wrapper" @click="onMapWrapperClicked">
     <UncoloredNodeHelperWidget
       v-if="uncoloredStates.length > 0"
       ref="uncoloredNodeHelperRef"
@@ -458,7 +486,7 @@ onMounted(() => {
       <div
         class="inline mr-1 small-reset-button"
         style="background-color: #FFFFFF; color: black; padding: 4px 8px 4px 13px; border-radius: 12px; border: 1px solid #000; cursor: pointer; font-size: 14px;"
-        @click.prevent="resetStateColors"
+        @click.prevent="onResetButtonClicked"
       >
         Reset
       </div>
@@ -468,7 +496,7 @@ onMounted(() => {
       class="svg-map"
       xmlns="http://www.w3.org/2000/svg"
       style="stroke-linejoin: round; stroke: #000; fill: none; cursor: pointer;"
-      @click.prevent="stateClicked"
+      @click.prevent="onNodeClicked"
     >
       <path
         v-for="state in mapData"
@@ -476,8 +504,8 @@ onMounted(() => {
         :key="state.id"
         :d="state.d"
         :style="{ fill: getFillColorForNode(state.id) }"
-        @mouseenter="mouseEnterState"
-        @mouseout="mouseOutState"
+        @mouseenter="onMouseEnterNode"
+        @mouseout="onMouseOutNode"
       />
     </svg>
     <ColorPicker
@@ -495,7 +523,7 @@ onMounted(() => {
         />
         <MapButtonControls
           @auto-color="setIdealColoring"
-          @reset="resetStateColors"
+          @reset="resetMapColors"
           @open-instructions="openInfoDialog"
         />
       </div>
