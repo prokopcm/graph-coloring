@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
 import AdminButton from '~/components/AdminButton.vue'
 import ColorPicker from '~/components/ColorPicker.vue'
+import InvalidColoringMessage from '~/components/InvalidColoringMessage.vue'
 import MapButtonControls from '~/components/MapButtonControls.vue'
 import MapCompleteMessage from '~/components/MapCompleteMessage.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
@@ -472,15 +473,13 @@ onMounted(() => {
       :node-label-map="nodeIdToName"
       @select-node="selectState"
     />
-    <div
+    <InvalidColoringMessage
       v-if="nodesWithInvalidColorings.length > 1"
-      class="invalid-coloring toast-alert"
-      @click="selectState(nodesWithInvalidColorings[0].nodeId1)"
-    >
-      {{ nodeIdToName[nodesWithInvalidColorings[0].nodeId1] }} and {{ nodeIdToName[nodesWithInvalidColorings[0].nodeId2] }} are both {{ colorToName(nodesWithInvalidColorings[0].hexColor) }}.
-      <br>
-      Tap on me to fix!
-    </div>
+      :node-id1="nodeIdToName[nodesWithInvalidColorings[0].nodeId1]"
+      :node-id2="nodeIdToName[nodesWithInvalidColorings[0].nodeId2]"
+      :hex-color="colorToName(nodesWithInvalidColorings[0].hexColor)"
+      @fix="selectState(nodesWithInvalidColorings[0].nodeId1)"
+    />
     <MapCompleteMessage
       v-if="showSuccessMessage"
       :colors-used="colorsUsed"
@@ -555,20 +554,6 @@ onMounted(() => {
   top: 0;
   left: 0;
   z-index: 90;
-}
-
-.invalid-coloring {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background-color: #ff6b6b;
-  color: white;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  z-index: 89;
-  max-width: 400px;
-  cursor: pointer;
 }
 
 .svg-map {
