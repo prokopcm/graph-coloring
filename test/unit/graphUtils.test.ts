@@ -85,4 +85,36 @@ describe('getNeighboringNodesWithSameColor', () => {
       hexColor: colorNameHex.red,
     })
   })
+
+  it('sorts results so pairs involving lastUpdatedNodeId come first', () => {
+    const mapColoring: MapColoring = {
+      A: colorNameHex.red,
+      B: colorNameHex.red,
+      C: colorNameHex.blue,
+      D: colorNameHex.blue,
+    }
+
+    const neighborGraph: NeighborGraph = {
+      A: ['B'],
+      B: ['A'],
+      C: ['D'],
+      D: ['C'],
+    }
+
+    const result = getNeighboringNodesWithSameColor({
+      mapColoring,
+      neighborGraph,
+      lastUpdatedNodeId: 'C',
+    })
+
+    expect(result).toHaveLength(4)
+    const firstTwo = result.slice(0, 2)
+    const lastTwo = result.slice(2, 4)
+    for (const pair of firstTwo) {
+      expect(pair.nodeId1 === 'C' || pair.nodeId2 === 'C').toBe(true)
+    }
+    for (const pair of lastTwo) {
+      expect(pair.nodeId1 === 'C' || pair.nodeId2 === 'C').toBe(false)
+    }
+  })
 })
