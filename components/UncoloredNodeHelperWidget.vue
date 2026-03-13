@@ -28,7 +28,7 @@ function onNodeMouseLeave(nodeId: string) {
 }
 
 // Reset hoveredNodeId when nodes prop changes
-watch(props.nodes, () => {
+watch(() => props.nodes, () => {
   hoveredNodeId.value = null
 })
 
