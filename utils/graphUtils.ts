@@ -1,5 +1,10 @@
-import type { USMapColoring } from '~/data/mapData'
+import type { MapColoring } from '~/data/mapData'
 import { colorNameHex } from '~/data/colors'
+
+/** An abstract representation of which of the 4 possible colors a node in a map can have */
+export type AbstractNodeColor = 'c1' | 'c2' | 'c3' | 'c4'
+
+export type AbstractMapColoring = Record<string, AbstractNodeColor>
 
 /** A pair of nodes in a graph that are neighbors and have the same color */
 export interface InvalidNodePairColoring {
@@ -34,7 +39,7 @@ export type NeighborGraph = Record<string, NeighborGraphNode>
  * @returns A list of pairs of nodes that are neighbors and have the same color
  */
 export function getNeighboringNodesWithSameColor(props: {
-  mapColoring: USMapColoring
+  mapColoring: MapColoring
   neighborGraph: NeighborGraph
   lastUpdatedNodeId?: string
 }): InvalidNodePairColoring[] {
