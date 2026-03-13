@@ -20,7 +20,6 @@ const isiOS = window && /iPad|iPhone|iPod/.test(window.navigator.userAgent)
         <span>&nbsp;</span>
       </section>
     </div>
-    <Footer />
   </div>
 </template>
 

@@ -6,6 +6,5 @@
         Gallery coming soon!
       </div>
     </section>
-    <Footer />
   </div>
 </template>
