@@ -7,18 +7,18 @@
 
 <style>
 .subsection-wrapper {
-    margin: auto;
-    margin-top: 32px;
+  margin: auto;
+  margin-top: 32px;
 }
 
 .insta-link {
-    position: relative;
-    top: 13px;
+  position: relative;
+  top: 13px;
 }
 
 .instagram {
-    width: 20px;
-    height: 20px;
-    object-fit: cover;
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
 }
 </style>

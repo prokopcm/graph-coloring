@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { MapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
-import { onMounted, ref, computed, watch } from 'vue'
-import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName, type MapColoring } from '~/data/mapData'
-
+import { computed, onMounted, ref, watch } from 'vue'
+import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
 
 const ADMIN_CLICK_TIMEFRAME = 5000
 const ONE_MIN_MS = 60000
@@ -23,7 +23,6 @@ const _mapColoring: MapColoring = {}
 for (const abbrev in stateAbbrevToName) {
   _mapColoring[abbrev] = '#FFFFFF'
 }
-
 
 const currentDate = new Date()
 const isApril4To6 = currentDate.getMonth() === 3 && currentDate.getDate() >= 4 && currentDate.getDate() <= 6
@@ -51,16 +50,16 @@ const colorsUsed = computed(() => {
   return used.size
 })
 
-const completedMap = computed(() => {
-  return uncoloredStates.value.length === 0 && invalidColoringStates.value.length === 0
-})
-
 const uncoloredStates = computed(() => {
   const uncolored = Object.entries(mapColoring.value)
     .filter(([_, color]) => color === '#FFFFFF')
     .map(([state, _]) => state)
 
   return uncolored.sort((a, b) => stateAbbrevToName[a].localeCompare(stateAbbrevToName[b]))
+})
+
+const completedMap = computed(() => {
+  return uncoloredStates.value.length === 0 && invalidColoringStates.value.length === 0
 })
 
 // Watch for map fully colored and in a valid state
@@ -70,16 +69,16 @@ watch([completedMap], ([completed]) => {
   }
 })
 
-function cancelResetTimer () {
+function cancelResetTimer() {
   if (resetTimer.value) {
     clearTimeout(resetTimer.value)
     resetTimer.value = null
   }
 }
 
-function celebratePuzzleCompletion () {
+function celebratePuzzleCompletion() {
   showSuccessMessage.value = true
-  
+
   confetti({
     particleCount: 300,
     spread: 70,
@@ -102,32 +101,32 @@ function closeAreYouStillThereDialog() {
   resetInteractionTimer()
 }
 
-function colorToName (hexOrRGB: string) {
+function colorToName(hexOrRGB: string) {
   const color = colors.find(color => color.hex === hexOrRGB || color.rgb === hexOrRGB)
-  
+
   return color ? color.name : hexOrRGB
 }
 
-function getFillColor (stateId: string) {
+function getFillColor(stateId: string) {
   if (selectedState.value) {
     if (selectedState.value.id === stateId) {
       return '#CCFFEE'
     }
-  } else if (mouseoverState.value && mouseoverState.value.id === stateId) {
+  }
+  else if (mouseoverState.value && mouseoverState.value.id === stateId) {
     return '#CCFFEE'
   }
 
   return mapColoring.value[stateId] || '#FFFFFF'
 }
 
-function mapWrapperClicked (event: MouseEvent) {
+function mapWrapperClicked(event: MouseEvent) {
   if (event.target instanceof HTMLElement && event.target.id === 'map-wrapper') {
     toggleColorPicker(false)
   }
 }
 
-
-function mouseEnterState (event: MouseEvent) {
+function mouseEnterState(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id && mapColoring.value[stateElement.id] === '#FFFFFF') {
@@ -135,7 +134,7 @@ function mouseEnterState (event: MouseEvent) {
   }
 }
 
-function mouseOutState (event: MouseEvent) {
+function mouseOutState(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id) {
@@ -149,7 +148,7 @@ function mouseOutState (event: MouseEvent) {
   }
 }
 
-function onAdminButtonClick () {
+function onAdminButtonClick() {
   adminClickCount.value++
 
   if (adminClickCount.value === 1) {
@@ -168,12 +167,12 @@ function onAdminButtonClick () {
   }
 }
 
-function openInfoDialog () {
+function openInfoDialog() {
   showInfoDialog.value = true
   resetInteractionTimer()
 }
 
-function resetInteractionTimer () {
+function resetInteractionTimer() {
   cancelInteractionTimer()
 
   if (uncoloredStates.value.length === 50 || !isApril4To6 || adminMode.value) {
@@ -187,7 +186,7 @@ function resetInteractionTimer () {
   }, TWO_MIN_MS)
 }
 
-function startResetTimer () {
+function startResetTimer() {
   if (resetTimer.value) {
     return
   }
@@ -198,7 +197,7 @@ function startResetTimer () {
   }, TWO_MIN_MS)
 }
 
-function stateClicked (event: MouseEvent) {
+function stateClicked(event: MouseEvent) {
   const stateElement = event.target as HTMLElement
 
   if (stateElement.tagName === 'path' && stateElement.id) {
@@ -214,19 +213,20 @@ function stateClicked (event: MouseEvent) {
     colorPickerY.value = event.clientY + 10
     selectedState.value = stateElement
     toggleColorPicker(true)
-  } else {
+  }
+  else {
     toggleColorPicker(false)
   }
 }
 
-function cancelInteractionTimer () {
+function cancelInteractionTimer() {
   if (interactionTimer.value) {
     clearTimeout(interactionTimer.value)
     interactionTimer.value = null
   }
 }
 
-function toggleColorPicker (show: boolean) {
+function toggleColorPicker(show: boolean) {
   showColorPicker.value = show
   cancelResetTimer()
   resetInteractionTimer()
@@ -235,7 +235,8 @@ function toggleColorPicker (show: boolean) {
     if (selectedState.value) {
       selectedState.value.style.fill = '#CCFFEE'
     }
-  } else {
+  }
+  else {
     if (selectedState.value) {
       selectedState.value.style.fill = mapColoring.value[selectedState.value.id] || '#FFFFFF'
       selectedState.value = null
@@ -247,7 +248,7 @@ function toggleColorPicker (show: boolean) {
   }
 }
 
-function resetStateColors () {
+function resetStateColors() {
   cancelInteractionTimer()
   cancelResetTimer()
   showAreYouStillThereDialog.value = false
@@ -274,7 +275,7 @@ function resetStateColors () {
   invalidColoringStates.value = []
 }
 
-function selectState (state: string) {
+function selectState(state: string) {
   cancelResetTimer()
   resetInteractionTimer()
 
@@ -298,7 +299,7 @@ function selectState (state: string) {
   }
 }
 
-function setColor (color: string) {
+function setColor(color: string) {
   cancelResetTimer()
   resetInteractionTimer()
 
@@ -312,13 +313,13 @@ function setColor (color: string) {
   invalidColoringStates.value = getInvalidColoringNodes(adjacentNeighbors)
 }
 
-function setIdealColoring () {
+function setIdealColoring() {
   // Hardcoded for now
   const colorMapping: Record<string, string> = {
-    "c1": '#FF6E6E',
-    "c2": '#6E9EFF',
-    "c3": '#6EFF98',
-    "c4": '#FFFA6E',
+    c1: '#FF6E6E',
+    c2: '#6E9EFF',
+    c3: '#6EFF98',
+    c4: '#FFFA6E',
   }
 
   for (const [state, color] of Object.entries(idealColoring)) {
@@ -335,7 +336,7 @@ onMounted(() => {
   <div id="map-wrapper" class="map-wrapper" @click="mapWrapperClicked">
     <div
       v-if="uncoloredStates.length > 0"
-      class="uncolored-states ml-2.5 absolute rounded-lg p-2.5 shadow-md"
+      class="absolute ml-2.5 p-2.5 rounded-lg shadow-md uncolored-states"
     >
       <div class="font-bold mb-1.5">
         States left to color:
@@ -352,7 +353,7 @@ onMounted(() => {
         <i style="color: grey; font-size: 0.875em;">and {{ uncoloredStates.length - 3 }} more...</i>
       </div>
     </div>
-    <div 
+    <div
       v-if="invalidColoringStates.length > 1"
       class="toast-alert"
       style="position: absolute; bottom: 20px; right: 20px; background-color: #ff6b6b; color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 99; max-width: 400px; cursor: pointer;"
@@ -362,24 +363,27 @@ onMounted(() => {
       <br>
       Tap on me to fix!
     </div>
-    <div 
+    <div
       v-if="showSuccessMessage"
-      class="success-message ml-2.5 absolute"
+      class="absolute ml-2.5 success-message"
       style="background-color: #4CAF50; color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; text-align: center; max-width: 215px;"
     >
-      <h2 style="margin-top: 0; font-size: 24px;">Congratulations! 🎉</h2>
-      <p class="mb-2">You successfully colored the map!</p>
+      <h2 style="margin-top: 0; font-size: 24px;">
+        Congratulations! 🎉
+      </h2>
+      <p class="mb-2">
+        You successfully colored the map!
+      </p>
       <p>You used {{ colorsUsed }} colors.</p>
       <br>
       <div
-      class="small-reset-button inline mr-1"
-      @click.prevent="resetStateColors"
-      style="background-color: #FFFFFF; color: black; padding: 4px 8px 4px 13px; border-radius: 12px; border: 1px solid #000; cursor: pointer; font-size: 14px;"
-    >
-      Reset
-    </div>
-    <i>the map to try coloring again!</i>
-    
+        class="inline mr-1 small-reset-button"
+        style="background-color: #FFFFFF; color: black; padding: 4px 8px 4px 13px; border-radius: 12px; border: 1px solid #000; cursor: pointer; font-size: 14px;"
+        @click.prevent="resetStateColors"
+      >
+        Reset
+      </div>
+      <i>the map to try coloring again!</i>
     </div>
     <svg
       class="svg-map"
@@ -414,8 +418,8 @@ onMounted(() => {
     </div>
     <div>
       <div class="button-wrapper mb-4">
-        <div 
-          class="admin-button" 
+        <div
+          class="admin-button"
           @click="onAdminButtonClick"
         />
         <button
@@ -431,12 +435,12 @@ onMounted(() => {
         >
           Reset
         </button>
-        <button 
+        <button
           class="link-button ml-4"
           @click.prevent="openInfoDialog"
         >
           <span class="inline-flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 mr-1 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Instructions
@@ -444,15 +448,15 @@ onMounted(() => {
         </button>
       </div>
     </div>
-    
-    <div v-if="showInfoDialog" class="fixed inset-0 flex items-center justify-center z-50">
-      <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeInfoDialog" />
+
+    <div v-if="showInfoDialog" class="fixed flex inset-0 items-center justify-center z-50">
+      <div class="bg-black bg-opacity-50 fixed inset-0" @click="closeInfoDialog" />
       <InfoDialog
         @close="closeInfoDialog"
       />
     </div>
-    <div v-if="showAreYouStillThereDialog" class="fixed inset-0 flex items-center justify-center z-50">
-      <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeAreYouStillThereDialog" />
+    <div v-if="showAreYouStillThereDialog" class="fixed flex inset-0 items-center justify-center z-50">
+      <div class="bg-black bg-opacity-50 fixed inset-0" @click="closeAreYouStillThereDialog" />
       <AreYouStillThereDialog
         @close="closeAreYouStillThereDialog"
       />

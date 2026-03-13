@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps({ selected: String })
 
-function getLinkStyle (link: string) {
+function getLinkStyle(link: string) {
   return link === props.selected ? 'text-link' : 'unselected'
 }
 </script>
@@ -38,58 +38,58 @@ function getLinkStyle (link: string) {
 
 <style>
 .site-header {
-    height: 60px;
-    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 1;
-    align-items: center;
+  height: 60px;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+  align-items: center;
 }
 
 .header-hero {
-    line-height: 1.41em;
-    font-size: 22px;
-    font-weight: 400;
+  line-height: 1.41em;
+  font-size: 22px;
+  font-weight: 400;
 }
 
 ul {
-    list-style: none;
-    text-align: right;
+  list-style: none;
+  text-align: right;
 }
 
 li {
-    display: inline-block;
-    height: 30px;
-    position: relative;
-    box-sizing: border-box;
-    overflow: visible;
-    visibility: inherit;
+  display: inline-block;
+  height: 30px;
+  position: relative;
+  box-sizing: border-box;
+  overflow: visible;
+  visibility: inherit;
 }
 
 li span {
-    font-size: 18px;
-    font-weight: 400;
+  font-size: 18px;
+  font-weight: 400;
 }
 
 .menu-links {
-    color: rgb(var(--txts, var(--color_14)));
+  color: rgb(var(--txts, var(--color_14)));
 }
 
 .insta-link {
-    position: relative;
-    top: 13px;
+  position: relative;
+  top: 13px;
 }
 
 .instagram {
-    width: 20px;
-    height: 20px;
-    object-fit: cover;
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
 }
 
 .selected {
-    text-decoration: underline 0.3rem;
+  text-decoration: underline 0.3rem;
 }
 
 .unselected:hover {
-    color: #333;
+  color: #333;
 }
 </style>

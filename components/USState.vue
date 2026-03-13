@@ -7,7 +7,7 @@ const selectedState = ref<StateElement | null>(null)
 const showColorPicker = ref<boolean>(false)
 const colors = ref<string[]>(['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000', '#FFFFFF'])
 
-function stateClicked (event: MouseEvent) {
+function stateClicked(event: MouseEvent) {
   const stateElement = event.target as StateElement
   if (stateElement.tagName === 'path' && stateElement.id) {
     selectedState.value = stateElement
@@ -15,7 +15,7 @@ function stateClicked (event: MouseEvent) {
   }
 };
 
-function setColor (color: string) {
+function setColor(color: string) {
   if (selectedState.value) {
     selectedState.value.style.fill = color
   }
@@ -453,14 +453,15 @@ function setColor (color: string) {
 </template>
 
 <style scoped>
-  .color-picker {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-  }
-  .color {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-  }
+.color-picker {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.color {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
 </style>

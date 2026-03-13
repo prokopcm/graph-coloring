@@ -1,5 +1,4 @@
 <template>
-  <!-- eslint-disable no-irregular-whitespace -->
   <div>
     <AppMenu selected="about" />
     <div class="content">
@@ -9,13 +8,13 @@
             Note: words in <b>bold</b> are good terms to search for in order to dig deeper and further your understanding!
           </div>
           <div class="spacer">
-            <span>​</span>
+            <span>&nbsp;</span>
           </div>
           <a class="pdf-link" target="_blank" href="/map-coloring-handout.pdf">
             <img class="pdf-image" src="/img/pdf.jpg">Download a printable PDF handout!
           </a>
           <div class="spacer">
-            <span>​</span>
+            <span>&nbsp;</span>
           </div>
           <p class="subhero-text">
             Coloring maps
@@ -25,7 +24,7 @@
           </p>
 
           <div class="spacer">
-            <span>​</span>
+            <span>&nbsp;</span>
           </div>
           <p class="subhero-text">
             Creative math
@@ -35,7 +34,7 @@
           </p>
           <img class="midwest-img" src="/img/midwest.svg">
           <div class="spacer">
-            <span>​</span>
+            <span>&nbsp;</span>
           </div>
 
           <p class="subhero-text">
@@ -58,7 +57,7 @@
           </ul>
 
           <div class="spacer">
-            <span>​</span>
+            <span>&nbsp;</span>
           </div>
           <p class="subhero-text">
             Applications
@@ -68,7 +67,7 @@
           </p>
 
           <div class="spacer">
-            <span>​</span>
+            <span>&nbsp;</span>
           </div>
           <p class="subhero-text">
             How to study this more
@@ -77,7 +76,7 @@
             Graph theory and graph coloring is usually taught as a part of a college class in discrete mathematics. Solving constraint satisfaction problems with algorithms is taught in computer science courses in algorithms as well as artificial intelligence. If you study computer science, mathematics, or engineering, you'll likely have an opportunity to study this subject more thoroughly.
           </p>
           <div class="spacer">
-            <span>​</span>
+            <span>&nbsp;</span>
           </div>
           <p class="subhero-text">
             Resources
