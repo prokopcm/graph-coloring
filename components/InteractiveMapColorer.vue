@@ -13,13 +13,17 @@ import MapButtonControls from '~/components/MapButtonControls.vue'
 import MapCompleteMessage from '~/components/MapCompleteMessage.vue'
 import MapViewer from '~/components/MapViewer.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
+import useMapDataLoader from '~/composables/useMapDataLoader'
 import { colorNameHex, colorsList } from '~/data/colors'
-import { idealColoring, mapData, neighborGraph, nodeIdToName } from '~/data/usMapData'
 import { colorToName } from '~/utils/colorUtils'
 import { isSciFest, TWO_MIN_MS } from '~/utils/dateTimeUtils'
 import { getNeighboringNodesWithSameColor } from '~/utils/graphUtils'
-import { initializeMapColoring } from '~/utils/mapUtils'
 
+const props = defineProps<{
+  mapData: MapNodeData[]
+}>()
+
+const { neighborGraph, nodeIdToName, idealColoring } = useMapDataLoader(props.mapData)
 /** Whether the admin mode is enabled. Disables reset timers. */
 const adminMode = ref(false)
 
@@ -33,7 +37,7 @@ const colorPickerY = ref(0)
 const interactionTimerId = ref<ReturnType<typeof setTimeout> | null>(null)
 
 /** A record with the key the state id and the value the hex color of the state */
-const mapColoring = ref<MapColoring>(initializeMapColoring(mapData))
+const mapColoring = ref<MapColoring>(initializeMapColoring(props.mapData))
 
 /** The node id that the mouse is hovering over */
 const mouseoverNodeId = ref<string | null>(null)
