@@ -511,13 +511,6 @@ onMounted(() => {
   z-index: 90;
 }
 
-.svg-map {
-  width: 1000px;
-  height: 589px;
-  display: inline-block;
-  /* viewBox="0 0 1000 589" */
-}
-
 .map-wrapper {
   position: relative;
 }
