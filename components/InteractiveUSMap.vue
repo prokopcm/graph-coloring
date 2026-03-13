@@ -409,11 +409,10 @@ onMounted(() => {
           @click="onAdminButtonClick"
         />
         <button
-          v-if="adminMode"
           class="link-button mr-4"
           @click.prevent="setIdealColoring"
         >
-          Color
+          Auto-Color
         </button>
         <button
           class="link-button"
@@ -434,7 +433,6 @@ onMounted(() => {
         </button>
       </div>
     </div>
-
     <div v-if="showInfoDialog" class="fixed flex inset-0 items-center justify-center z-50">
       <div class="bg-black bg-opacity-50 fixed inset-0" @click="closeInfoDialog" />
       <InfoDialog
