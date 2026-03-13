@@ -3,6 +3,7 @@ import type { USMapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
 import ColorPicker from '~/components/ColorPicker.vue'
+import MapButtonControls from '~/components/MapButtonControls.vue'
 import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
@@ -429,29 +430,11 @@ onMounted(() => {
           class="admin-button"
           @click="onAdminButtonClick"
         />
-        <button
-          class="link-button mr-4"
-          @click.prevent="setIdealColoring"
-        >
-          Auto-Color
-        </button>
-        <button
-          class="link-button"
-          @click.prevent="resetStateColors"
-        >
-          Reset
-        </button>
-        <button
-          class="link-button ml-4"
-          @click.prevent="openInfoDialog"
-        >
-          <span class="inline-flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 mr-1 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Instructions
-          </span>
-        </button>
+        <MapButtonControls
+          @auto-color="setIdealColoring"
+          @reset="resetStateColors"
+          @open-instructions="openInfoDialog"
+        />
       </div>
     </div>
     <div v-if="showInfoDialog" class="fixed flex inset-0 items-center justify-center z-50">
