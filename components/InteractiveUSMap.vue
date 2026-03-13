@@ -7,6 +7,7 @@ import ColorPicker from '~/components/ColorPicker.vue'
 import InvalidColoringMessage from '~/components/InvalidColoringMessage.vue'
 import MapButtonControls from '~/components/MapButtonControls.vue'
 import MapCompleteMessage from '~/components/MapCompleteMessage.vue'
+import MapViewer from '~/components/MapViewer.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
 import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, nodeIdToName } from '~/data/mapData'
@@ -30,8 +31,8 @@ const interactionTimerId = ref<number | null>(null)
 /** A record with the key the state id and the value the hex color of the state */
 const mapColoring = ref<MapColoring>(initializeMapColoring(mapData))
 
-/** The SVG state element that the mouse is hovering over */
-const mouseoverNodeEl = ref<HTMLElement | null>(null)
+/** The node id that the mouse is hovering over */
+const mouseoverNodeId = ref<string | null>(null)
 
 /** A list of pairs of nodes that are neighbors and have the same color */
 const nodesWithInvalidColorings = ref<InvalidNodePairColoring[]>([])
@@ -39,7 +40,7 @@ const nodesWithInvalidColorings = ref<InvalidNodePairColoring[]>([])
 /** The id of the timeout for the reset timer */
 const resetTimerId = ref<number | null>(null)
 
-/** The SVG state/node element that is selected */
+/** The node id of the state/node that is selected */
 const selectedNodeEl = ref<HTMLElement | null>(null)
 
 /** Whether to show the color picker */
@@ -90,13 +91,13 @@ watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => 
   }
 
   if (!hoveredId || typeof hoveredId !== 'string') {
-    mouseoverNodeEl.value = null
+    mouseoverNodeId.value = null
 
     return
   }
 
   if (mapColoring.value[hoveredId] !== colorNameHex.BLANK) {
-    mouseoverNodeEl.value = null
+    mouseoverNodeId.value = null
 
     return
   }
@@ -104,7 +105,7 @@ watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => 
   const stateElement = document.getElementById(hoveredId) as HTMLElement | null
 
   if (stateElement && stateElement.tagName === 'path') {
-    mouseoverNodeEl.value = stateElement
+    mouseoverNodeId.value = hoveredId
   }
 })
 
@@ -158,53 +159,27 @@ function closeDialogs() {
 }
 
 /**
- * Returns the fill color for a given node (state) based on the selected state and mouseover state.
- * @param stateId The ID of the state to get the fill color for, e.g. `'CA'`.
- * @returns The hex fill color to apply to the given node, e.g. `'#FF0000'`.
- */
-function getFillColorForNode(stateId: string) {
-  if (selectedNodeEl.value) {
-    if (selectedNodeEl.value.id === stateId) {
-      return colorNameHex.SELECTED
-    }
-  }
-  else if (mouseoverNodeEl.value && mouseoverNodeEl.value.id === stateId) {
-    return colorNameHex.SELECTED
-  }
-
-  return mapColoring.value[stateId] || colorNameHex.BLANK
-}
-
-/**
- * Handles the mouse entering a state/node and sets the mouseoverNodeEl
+ * Handles the mouse entering a state/node and sets the mouseoverNodeId
  * to the state element if it is uncolored.
  * @param event The mouse enter event.
  */
-function onMouseEnterNode(event: MouseEvent) {
-  const stateElement = event.target as HTMLElement
-
-  if (stateElement.tagName === 'path' && stateElement.id && mapColoring.value[stateElement.id] === colorNameHex.BLANK) {
-    mouseoverNodeEl.value = stateElement
+function onMouseEnterNode(payload: { nodeId: string, element: HTMLElement }) {
+  if (payload.element.id && mapColoring.value[payload.element.id] === colorNameHex.BLANK) {
+    mouseoverNodeId.value = payload.nodeId
   }
 }
 
 /**
- * Handles the mouse leaving a state/node and resets the mouseoverNodeEl.
+ * Handles the mouse leaving a state/node and resets the mouseoverNodeId.
  * @param event The mouse leave event.
  */
-function onMouseOutNode(event: MouseEvent) {
-  const stateElement = event.target as HTMLElement
-
-  if (stateElement.tagName === 'path' && stateElement.id) {
-    if (selectedNodeEl.value && selectedNodeEl.value.id === stateElement.id) {
+function onMouseOutNode(payload: { nodeId: string, element: HTMLElement }) {
+  if (payload.element.tagName === 'path' && payload.element.id) {
+    if (selectedNodeEl.value && selectedNodeEl.value.id === payload.nodeId) {
       return
     }
 
-    if (mapColoring.value[stateElement.id]) {
-      stateElement.style.fill = mapColoring.value[stateElement.id]
-    }
-
-    mouseoverNodeEl.value = null
+    mouseoverNodeId.value = null
   }
 }
 
@@ -251,25 +226,22 @@ function onMapWrapperClicked(event: PointerEvent) {
  * Handles a state being clicked on the map.
  * @param event The click or tap event.
  */
-function onNodeClicked(event: PointerEvent) {
-  const stateElement = event.target as HTMLElement
+function onNodeClicked(payload?: { nodeId: string, element: HTMLElement, clientX: number, clientY: number }) {
+  if (!payload) {
+    toggleColorPicker(false)
+    return
+  }
 
-  if (stateElement.tagName === 'path' && stateElement.id) {
-    if (selectedNodeEl.value && selectedNodeEl.value.id !== stateElement.id) {
-      selectedNodeEl.value.style.fill = mapColoring.value[selectedNodeEl.value.id] || colorNameHex.BLANK
-    }
-
+  if (payload.element.tagName === 'path' && payload.element.id) {
     // get page width
     const mapWrapper = document.querySelector('.map-wrapper') as HTMLElement
     const pageWidth = mapWrapper.offsetWidth
 
-    colorPickerX.value = Math.min(event.clientX - 150, pageWidth - 420)
-    colorPickerY.value = event.clientY + 10
-    selectedNodeEl.value = stateElement
+    colorPickerX.value = Math.min(payload.clientX - 150, pageWidth - 420)
+    colorPickerY.value = payload.clientY + 10
+    selectedNodeEl.value = payload.element
+
     toggleColorPicker(true)
-  }
-  else {
-    toggleColorPicker(false)
   }
 }
 
@@ -324,19 +296,9 @@ function resetMapColors() {
   }
 
   selectedNodeEl.value = null
-  mouseoverNodeEl.value = null
+  mouseoverNodeId.value = null
   showColorPicker.value = false
   showSuccessMessage.value = false
-
-  // loop through each <path> element and reset the fill style
-  for (const stateInfo of mapData) {
-    const stateId = stateInfo.id
-    const stateElement = document.getElementById(stateId)
-
-    if (stateElement) {
-      stateElement.style.fill = colorNameHex.BLANK
-    }
-  }
 
   nodesWithInvalidColorings.value = []
 }
@@ -352,10 +314,6 @@ function selectState(stateId: string) {
   const stateElement = document.getElementById(stateId) as HTMLElement
 
   if (stateElement && stateElement.tagName === 'path') {
-    if (selectedNodeEl.value && selectedNodeEl.value.id !== stateId) {
-      selectedNodeEl.value.style.fill = mapColoring.value[selectedNodeEl.value.id] || colorNameHex.BLANK
-    }
-
     // Position the color picker near the state element
     const rect = stateElement.getBoundingClientRect()
     const mapWrapper = document.querySelector('.map-wrapper') as HTMLElement
@@ -410,7 +368,6 @@ function startResetTimer() {
  */
 function setSelectedNodeColor(hexColor: string) {
   if (selectedNodeEl.value) {
-    selectedNodeEl.value.style.fill = hexColor
     mapColoring.value[selectedNodeEl.value.id] = hexColor
   }
 }
@@ -433,19 +390,13 @@ function toggleColorPicker(show: boolean) {
 
   resetInteractionTimers()
 
-  if (show) {
+  if (!show) {
     if (selectedNodeEl.value) {
-      selectedNodeEl.value.style.fill = colorNameHex.SELECTED
-    }
-  }
-  else {
-    if (selectedNodeEl.value) {
-      selectedNodeEl.value.style.fill = mapColoring.value[selectedNodeEl.value.id] || colorNameHex.BLANK
       selectedNodeEl.value = null
     }
 
-    if (mouseoverNodeEl.value) {
-      mouseoverNodeEl.value = null
+    if (mouseoverNodeId.value) {
+      mouseoverNodeId.value = null
     }
   }
 }
@@ -468,6 +419,7 @@ onMounted(() => {
     <UncoloredNodeHelperWidget
       v-if="uncoloredNodes.length > 0"
       ref="uncoloredNodeHelperRef"
+      class="z-10"
       node-name="States"
       :nodes="uncoloredNodes"
       :node-label-map="nodeIdToName"
@@ -485,22 +437,16 @@ onMounted(() => {
       :colors-used="colorsUsed"
       @reset="onResetButtonClicked"
     />
-    <svg
-      class="svg-map"
-      xmlns="http://www.w3.org/2000/svg"
-      style="stroke-linejoin: round; stroke: #000; fill: none; cursor: pointer;"
-      @click.prevent="onNodeClicked"
-    >
-      <path
-        v-for="state in mapData"
-        :id="state.id"
-        :key="state.id"
-        :d="state.d"
-        :style="{ fill: getFillColorForNode(state.id) }"
-        @mouseenter="onMouseEnterNode"
-        @mouseout="onMouseOutNode"
-      />
-    </svg>
+    <MapViewer
+      :map-data="mapData"
+      :map-coloring="mapColoring"
+      :highlighted-node-id="mouseoverNodeId ?? null"
+      :selected-node-id="selectedNodeEl?.id ?? null"
+      @empty-clicked="onNodeClicked"
+      @node-clicked="onNodeClicked"
+      @mouseenter-node="onMouseEnterNode"
+      @mouseout-node="onMouseOutNode"
+    />
     <ColorPicker
       v-if="showColorPicker"
       :colors="colorsList"

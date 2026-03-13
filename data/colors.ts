@@ -16,10 +16,11 @@ export const colorsList = [
   { hex: '#FFFFFF', rgb: 'rgb(255, 255, 255)', name: 'white' },
 ] as const
 
-type ColorName = typeof colorsList[number]['name'] | 'BLANK' | 'SELECTED'
+type ColorName = typeof colorsList[number]['name'] | 'BLANK' | 'SELECTED' | 'HIGHLIGHTED'
 
 export const colorNameHex: Record<ColorName, string> = {
   ...(Object.fromEntries(colorsList.map(({ name, hex }) => [name, hex])) as Record<ColorName, string>),
   BLANK: '#FFFFFF',
-  SELECTED: '#CCFFEE',
+  SELECTED: '#B3FFEC',
+  HIGHLIGHTED: '#E6FFF9',
 } as Record<ColorName, string>
