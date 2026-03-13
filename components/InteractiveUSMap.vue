@@ -2,6 +2,7 @@
 import type { USMapColoring } from '~/data/mapData'
 import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
+import ColorPicker from '~/components/ColorPicker.vue'
 import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
@@ -371,8 +372,7 @@ onMounted(() => {
     </div>
     <div
       v-if="invalidColoringStates.length > 1"
-      class="toast-alert"
-      style="position: absolute; bottom: 20px; right: 20px; background-color: #ff6b6b; color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 99; max-width: 400px; cursor: pointer;"
+      class="invalid-coloring toast-alert"
       @click="selectState(invalidColoringStates[0].name)"
     >
       {{ stateAbbrevToName[invalidColoringStates[0].name] }} and {{ stateAbbrevToName[invalidColoringStates[1].name] }} are both {{ colorToName(invalidColoringStates[0].color) }}.
@@ -382,7 +382,6 @@ onMounted(() => {
     <div
       v-if="showSuccessMessage"
       class="absolute ml-2.5 success-message"
-      style="background-color: #4CAF50; color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; text-align: center; max-width: 215px;"
     >
       <h2 style="margin-top: 0; font-size: 24px;">
         Congratulations! 🎉
@@ -417,21 +416,13 @@ onMounted(() => {
         @mouseout="mouseOutState"
       />
     </svg>
-    <div
+    <ColorPicker
       v-if="showColorPicker"
-      class="color-picker-container"
+      :colors="colorsList"
+      class="floating-color-picker"
       :style="{ top: `${colorPickerY}px`, left: `${colorPickerX}px` }"
-    >
-      <div class="color-picker">
-        <div
-          v-for="color in colorsList"
-          :key="color.hex"
-          :style="{ backgroundColor: color.hex }"
-          class="color"
-          @click.prevent="onColorPickerColorSelected(color.hex)"
-        />
-      </div>
-    </div>
+      @color-selected="onColorPickerColorSelected"
+    />
     <div>
       <div class="button-wrapper mb-4">
         <div
@@ -493,29 +484,36 @@ onMounted(() => {
   position: relative;
 }
 
-.color-picker-container {
+.floating-color-picker {
   position: absolute;
   top: 0;
   left: 0;
-  border: 1px solid #000;
-  background-color: #FFF;
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
   z-index: 90;
 }
 
-.color-picker {
-  display: flex;
-  gap: 14px;
+.invalid-coloring {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ff6b6b;
+  color: white;
   padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 99;
+  max-width: 400px;
+  cursor: pointer;
 }
 
-.color {
-  border-radius: 4px;
-  border: 1px solid #999;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
+.success-message {
+  background-color: #4CAF50;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  z-index: 1000;
+  text-align: center;
+  max-width: 215px;
 }
 
 .svg-map {
