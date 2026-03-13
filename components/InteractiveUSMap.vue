@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti'
 import { computed, onMounted, ref, watch } from 'vue'
 import ColorPicker from '~/components/ColorPicker.vue'
 import MapButtonControls from '~/components/MapButtonControls.vue'
+import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
 import { colorNameHex, colorsList } from '~/data/colors'
 import { adjacentNeighbors, idealColoring, mapData, stateAbbrevToName } from '~/data/mapData'
 import { colorToName } from '~/utils/colorUtils'
@@ -38,6 +39,8 @@ const showAreYouStillThereDialog = ref(false)
 const showInfoDialog = ref(false)
 const showSuccessMessage = ref(false)
 
+const uncoloredNodeHelperRef = ref<InstanceType<typeof UncoloredNodeHelperWidget> | null>(null)
+
 const colorsUsed = computed(() => {
   const used = new Set(Object.values(mapColoring.value).filter(color => color !== colorNameHex.BLANK))
 
@@ -57,9 +60,33 @@ const completedMap = computed(() => {
 })
 
 // Watch for map fully colored and in a valid state
-watch([completedMap], ([completed]) => {
+watch(completedMap, (completed) => {
   if (completed) {
     celebratePuzzleCompletion()
+  }
+})
+
+watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => {
+  if (hoveredId && typeof hoveredId !== 'string') {
+    return
+  }
+
+  if (!hoveredId || typeof hoveredId !== 'string') {
+    mouseoverState.value = null
+
+    return
+  }
+
+  if (mapColoring.value[hoveredId] !== colorNameHex.BLANK) {
+    mouseoverState.value = null
+
+    return
+  }
+
+  const stateElement = document.getElementById(hoveredId) as HTMLElement | null
+
+  if (stateElement && stateElement.tagName === 'path') {
+    mouseoverState.value = stateElement
   }
 })
 
@@ -352,25 +379,14 @@ onMounted(() => {
 
 <template>
   <div id="map-wrapper" class="map-wrapper" @click="mapWrapperClicked">
-    <div
+    <UncoloredNodeHelperWidget
       v-if="uncoloredStates.length > 0"
-      class="absolute ml-2.5 p-2.5 rounded-lg shadow-md uncolored-states"
-    >
-      <div class="font-bold mb-1.5">
-        States left to color:
-      </div>
-      <div
-        v-for="state in uncoloredStates.slice(0, 3)"
-        :key="state"
-        style="margin-bottom: 5px; cursor: pointer;"
-        @click="selectState(state)"
-      >
-        {{ stateAbbrevToName[state] }}
-      </div>
-      <div v-if="uncoloredStates.length > 3">
-        <i style="color: grey; font-size: 0.875em;">and {{ uncoloredStates.length - 3 }} more...</i>
-      </div>
-    </div>
+      ref="uncoloredNodeHelperRef"
+      node-name="States"
+      :nodes="uncoloredStates"
+      :node-label-map="stateAbbrevToName"
+      @select-node="selectState"
+    />
     <div
       v-if="invalidColoringStates.length > 1"
       class="invalid-coloring toast-alert"
