@@ -19,7 +19,7 @@ function getLinkSelectionStyle(link: string) {
   <div class="flex justify-between site-header" tabindex="-1">
     <p class="header-hero">
       <NuxtLink to="/">
-        <span class="color_1 md:m-4 sm:m-4">
+        <span data-testid="project-title" class="color_1 md:m-4 sm:m-4">
           Coloring, Creative Math, and Computers
         </span>
       </NuxtLink>
