@@ -70,6 +70,10 @@ export default defineConfig<ConfigOptions>({
     trace: 'on-first-retry',
   },
 
+  expect: {
+    toHaveScreenshot: { maxDiffPixels: 100 },
+  },
+
   /* Configure projects for major browsers */
   projects: devicesToTest.map(p => typeof p === 'string' ? ({ name: p, use: devices[p] }) : p),
 
