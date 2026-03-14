@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import { BASE_URL } from './config'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -17,7 +18,7 @@ export default defineNuxtConfig({
   },
 
   app: {
-    baseURL: '/projects/coloringmaps',
+    baseURL: BASE_URL,
   },
 
   compatibilityDate: '2025-03-07',
