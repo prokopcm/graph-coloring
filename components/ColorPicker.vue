@@ -24,6 +24,7 @@ function onColorClick(hexColor: string) {
       <div
         v-for="color in props.colors"
         :key="color.hex"
+        :data-testid="`color-picker-color-${color.name}`"
         :style="{ backgroundColor: color.hex }"
         class="color"
         @click.prevent="onColorClick(color.hex)"

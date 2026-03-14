@@ -52,6 +52,7 @@ defineExpose({
     <div
       v-for="node in nodes.slice(0, 3)"
       :key="node"
+      :data-testid="`uncolored-node-list-item-${node}`"
       class="uncolored-node-list-item cursor-pointer"
       @click="onNodeClick(node)"
       @mouseenter="onNodeMouseEnter(node)"
