@@ -7,7 +7,7 @@ const isiOS = window && /iPad|iPhone|iPod/.test(window.navigator.userAgent)
 
 <template>
   <div>
-    <AppMenu
+    <Header
       v-if="!isiOS"
       selected="home"
     />

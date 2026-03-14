@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AppMenu selected="gallery" />
+    <Header selected="gallery" />
     <section>
       <div class="subhero-text">
         Gallery coming soon!

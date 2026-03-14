@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AppMenu selected="about" />
+    <Header selected="about" />
     <div class="content">
       <div class="m-auto">
         <section class="main-content">
