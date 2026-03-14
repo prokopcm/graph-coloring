@@ -96,28 +96,15 @@ watch(completedMap, (completed) => {
   }
 })
 
+// Watch for when the user hovers over a node's name in the uncolored node helper
 watch(() => uncoloredNodeHelperRef.value?.hoveredNodeId ?? null, (hoveredId) => {
-  if (hoveredId && typeof hoveredId !== 'string') {
-    return
-  }
-
-  if (!hoveredId || typeof hoveredId !== 'string') {
+  if (!hoveredId || mapColoring.value[hoveredId] !== colorNameHex.BLANK) {
     mouseoverNodeId.value = null
 
     return
   }
 
-  if (mapColoring.value[hoveredId] !== colorNameHex.BLANK) {
-    mouseoverNodeId.value = null
-
-    return
-  }
-
-  const stateElement = document.getElementById(hoveredId) as HTMLElement | null
-
-  if (stateElement && stateElement.tagName === 'path') {
-    mouseoverNodeId.value = hoveredId
-  }
+  mouseoverNodeId.value = hoveredId
 })
 
 /**
