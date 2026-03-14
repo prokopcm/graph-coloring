@@ -10,6 +10,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 
 import AdminButton from '~/components/AdminButton.vue'
 import ColorPicker from '~/components/ColorPicker.vue'
+import AreYouStillThereDialog from '~/components/dialogs/AreYouStillThereDialog.vue'
+import InfoDialog from '~/components/dialogs/InfoDialog.vue'
 import InvalidColoringMessage from '~/components/InvalidColoringMessage.vue'
 import MapButtonControls from '~/components/MapButtonControls.vue'
 import MapCompleteMessage from '~/components/MapCompleteMessage.vue'
@@ -424,7 +426,7 @@ onMounted(() => {
       @select-node="selectState"
     />
     <InvalidColoringMessage
-      v-if="nodesWithInvalidColorings.length > 1"
+      v-if="nodesWithInvalidColorings.length > 0"
       :node-id1="nodeIdToName[nodesWithInvalidColorings[0].nodeId1]"
       :node-id2="nodeIdToName[nodesWithInvalidColorings[0].nodeId2]"
       :hex-color="colorToName(nodesWithInvalidColorings[0].hexColor)"
