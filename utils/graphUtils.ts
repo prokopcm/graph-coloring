@@ -41,31 +41,43 @@ export function getNeighboringNodesWithSameColor(props: {
   const { mapColoring, neighborGraph, lastUpdatedNodeId } = props
 
   const neighboringNodesWithSameColor: InvalidNodePairColoring[] = []
+  const priorityNodes: InvalidNodePairColoring[] = []
+  const seenNodeIdPairs = new Set<string>()
 
   for (const [nodeId, hexColor] of Object.entries(mapColoring)) {
     const neighbors = neighborGraph[nodeId] ?? []
 
     for (const neighborNodeId of neighbors) {
       const neighborColor = mapColoring[neighborNodeId]
+      const nodeIdPairKey = [nodeId, neighborNodeId].sort().join('-')
+
+      // Eliminate duplicate pairs, e.g. A-B and B-A.
+      if (seenNodeIdPairs.has(nodeIdPairKey)) {
+        continue
+      }
+      seenNodeIdPairs.add(nodeIdPairKey)
 
       if (neighborColor === hexColor && hexColor !== colorNameHex.BLANK) {
-        neighboringNodesWithSameColor.push({
-          nodeId1: nodeId,
-          nodeId2: neighborNodeId,
-          hexColor,
-        })
+        const priorityNode = lastUpdatedNodeId !== undefined
+          && (nodeId === lastUpdatedNodeId || neighborNodeId === lastUpdatedNodeId)
+
+        if (priorityNode) {
+          priorityNodes.push({
+            nodeId1: nodeId,
+            nodeId2: neighborNodeId,
+            hexColor,
+          })
+        }
+        else {
+          neighboringNodesWithSameColor.push({
+            nodeId1: nodeId,
+            nodeId2: neighborNodeId,
+            hexColor,
+          })
+        }
       }
     }
   }
 
-  // Optionally sort the list to put the node that was last updated at the front
-  if (lastUpdatedNodeId !== undefined) {
-    neighboringNodesWithSameColor.sort(({ nodeId1, nodeId2 }: InvalidNodePairColoring) => {
-      const nodeIsLastUpdated = nodeId1 === lastUpdatedNodeId || nodeId2 === lastUpdatedNodeId
-
-      return nodeIsLastUpdated ? -1 : 1
-    })
-  }
-
-  return neighboringNodesWithSameColor
+  return [...priorityNodes, ...neighboringNodesWithSameColor]
 }

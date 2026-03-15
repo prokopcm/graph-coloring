@@ -39,11 +39,6 @@ describe('getNeighboringNodesWithSameColor', () => {
         nodeId2: 'B',
         hexColor: colorNameHex.red,
       },
-      {
-        nodeId1: 'B',
-        nodeId2: 'A',
-        hexColor: colorNameHex.red,
-      },
     ])
   })
 
@@ -107,14 +102,7 @@ describe('getNeighboringNodesWithSameColor', () => {
       lastUpdatedNodeId: 'C',
     })
 
-    expect(result).toHaveLength(4)
-    const firstTwo = result.slice(0, 2)
-    const lastTwo = result.slice(2, 4)
-    for (const pair of firstTwo) {
-      expect(pair.nodeId1 === 'C' || pair.nodeId2 === 'C').toBe(true)
-    }
-    for (const pair of lastTwo) {
-      expect(pair.nodeId1 === 'C' || pair.nodeId2 === 'C').toBe(false)
-    }
+    expect(result).toHaveLength(2)
+    expect(result?.[0]?.nodeId1 === 'C' || result?.[0]?.nodeId2 === 'C').toBe(true)
   })
 })
