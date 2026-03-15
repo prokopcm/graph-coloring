@@ -19,7 +19,7 @@ import MapViewer from '~/components/MapViewer.vue'
 import UncoloredNodeHelperWidget from '~/components/UncoloredNodeHelperWidget.vue'
 import useMapDataLoader from '~/composables/useMapDataLoader'
 import { colorNameHex, colorsList } from '~/data/colors'
-import { colorToName } from '~/utils/colorUtils'
+import { colorToDisplayName } from '~/utils/colorUtils'
 import { isSciFest, TWO_MIN_MS } from '~/utils/dateTimeUtils'
 import { getNeighboringNodesWithSameColor } from '~/utils/graphUtils'
 
@@ -27,7 +27,7 @@ const props = defineProps<{
   mapData: MapNodeData[]
 }>()
 
-const { neighborGraph, nodeIdToName, idealColoring } = useMapDataLoader(props.mapData)
+const { getNodeDisplayName, neighborGraph, nodeIdToName, idealColoring } = useMapDataLoader(props.mapData)
 
 /** Whether the admin mode is enabled. Disables reset timers. */
 const adminMode = ref(false)
@@ -84,7 +84,7 @@ const uncoloredNodes = computed(() => {
     .filter(([_, color]) => color === colorNameHex.BLANK)
     .map(([state, _]) => state)
 
-  return uncolored.sort((a, b) => nodeIdToName[a] < nodeIdToName[b] ? -1 : 1)
+  return uncolored.sort((a, b) => (nodeIdToName[a] ?? '') < (nodeIdToName[b] ?? '') ? -1 : 1)
 })
 
 const completedMap = computed(() => {
@@ -342,7 +342,7 @@ function setIdealColoring() {
   }
 
   for (const [state, color] of Object.entries(idealColoring)) {
-    mapColoring.value[state] = colorMapping[color]
+    mapColoring.value[state] = colorMapping[color] ?? colorNameHex.BLANK
   }
 }
 
@@ -427,10 +427,10 @@ onMounted(() => {
     />
     <InvalidColoringMessage
       v-if="nodesWithInvalidColorings.length > 0"
-      :node-id1="nodeIdToName[nodesWithInvalidColorings[0].nodeId1]"
-      :node-id2="nodeIdToName[nodesWithInvalidColorings[0].nodeId2]"
-      :hex-color="colorToName(nodesWithInvalidColorings[0].hexColor)"
-      @fix="selectState(nodesWithInvalidColorings[0].nodeId1)"
+      :node-id1="getNodeDisplayName(nodesWithInvalidColorings?.[0]?.nodeId1)"
+      :node-id2="getNodeDisplayName(nodesWithInvalidColorings?.[0]?.nodeId2)"
+      :hex-color="colorToDisplayName(nodesWithInvalidColorings?.[0]?.hexColor ?? '')"
+      @fix="selectState(nodesWithInvalidColorings?.[0]?.nodeId1 ?? '')"
     />
     <MapCompleteMessage
       v-if="showSuccessMessage"

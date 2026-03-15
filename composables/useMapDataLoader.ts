@@ -33,7 +33,21 @@ export default function (mapData: MapNodeData[]) {
     idealColoring[node.id] = node.idealColor
   }
 
+  /**
+   * Returns the human-readable display name of a node.
+   * @param nodeId The id of the node to get the display name for.
+   * @returns The display name of the node, or an empty string if the node id is invalid.
+   */
+  function getNodeDisplayName(nodeId?: string) {
+    if (nodeId === undefined) {
+      return ''
+    }
+
+    return nodeIdToName[nodeId] ?? ''
+  }
+
   return {
+    getNodeDisplayName,
     neighborGraph,
     nodeIdToName,
     nodeIds,
