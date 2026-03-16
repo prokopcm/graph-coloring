@@ -54,7 +54,7 @@ const nodesWithInvalidColorings = ref<InvalidNodePairColoring[]>([])
 const resetTimerId = ref<ReturnType<typeof setTimeout> | null>(null)
 
 /** The node id of the state/node that is selected */
-const selectedNodeEl = ref<HTMLElement | null>(null)
+const selectedNodeId = ref<string | null>(null)
 
 /** Whether to show the color picker */
 const showColorPicker = ref(false)
@@ -175,7 +175,7 @@ function onMouseEnterNode(payload: { nodeId: string, element: HTMLElement }) {
  */
 function onMouseOutNode(payload: { nodeId: string, element: HTMLElement }) {
   if (payload.element.tagName === 'path' && payload.element.id) {
-    if (selectedNodeEl.value && selectedNodeEl.value.id === payload.nodeId) {
+    if (selectedNodeId.value && selectedNodeId.value === payload.nodeId) {
       return
     }
 
@@ -199,7 +199,7 @@ function onToggleAdmin() {
 function onColorPickerColorSelected(hexColor: string) {
   resetInteractionTimers()
 
-  if (selectedNodeEl.value) {
+  if (selectedNodeId.value) {
     setSelectedNodeColor(hexColor)
   }
 
@@ -208,7 +208,7 @@ function onColorPickerColorSelected(hexColor: string) {
   nodesWithInvalidColorings.value = getNeighboringNodesWithSameColor({
     mapColoring: mapColoring.value,
     neighborGraph,
-    lastUpdatedNodeId: selectedNodeEl?.value?.id,
+    lastUpdatedNodeId: selectedNodeId?.value ?? undefined,
   })
 
   toggleColorPicker(false)
@@ -241,7 +241,7 @@ function onNodeClicked(payload?: { nodeId: string, element: HTMLElement, clientX
 
     colorPickerX.value = Math.min(payload.clientX - 150, pageWidth - 420)
     colorPickerY.value = payload.clientY + 10
-    selectedNodeEl.value = payload.element
+    selectedNodeId.value = payload.nodeId
 
     toggleColorPicker(true)
   }
@@ -297,7 +297,7 @@ function resetMapColors() {
     mapColoring.value[state] = colorNameHex.BLANK
   }
 
-  selectedNodeEl.value = null
+  selectedNodeId.value = null
   mouseoverNodeId.value = null
   showColorPicker.value = false
   showSuccessMessage.value = false
@@ -324,7 +324,7 @@ function selectState(stateId: string) {
     colorPickerX.value = Math.min(rect.left, pageWidth - 420)
     colorPickerY.value = rect.bottom
 
-    selectedNodeEl.value = stateElement
+    selectedNodeId.value = stateId
     toggleColorPicker(true)
   }
 }
@@ -369,8 +369,8 @@ function startResetTimer() {
  * @param color The hex color to set the node to, e.g. `'#FF0000'`.
  */
 function setSelectedNodeColor(hexColor: string) {
-  if (selectedNodeEl.value) {
-    mapColoring.value[selectedNodeEl.value.id] = hexColor
+  if (selectedNodeId.value) {
+    mapColoring.value[selectedNodeId.value] = hexColor
   }
 }
 
@@ -393,8 +393,8 @@ function toggleColorPicker(show: boolean) {
   resetInteractionTimers()
 
   if (!show) {
-    if (selectedNodeEl.value) {
-      selectedNodeEl.value = null
+    if (selectedNodeId.value) {
+      selectedNodeId.value = null
     }
 
     if (mouseoverNodeId.value) {
@@ -443,7 +443,7 @@ onMounted(() => {
       :map-data="mapData"
       :map-coloring="mapColoring"
       :highlighted-node-id="mouseoverNodeId ?? null"
-      :selected-node-id="selectedNodeEl?.id ?? null"
+      :selected-node-id="selectedNodeId ?? null"
       @empty-clicked="onNodeClicked"
       @node-clicked="onNodeClicked"
       @mouseenter-node="onMouseEnterNode"
