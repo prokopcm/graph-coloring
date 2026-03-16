@@ -203,13 +203,15 @@ function onColorPickerColorSelected(hexColor: string) {
     setSelectedNodeColor(hexColor)
   }
 
-  toggleColorPicker(false)
-
+  // Need to calculate this first before closing the color picker because it
+  // uses the selected node's id, which gets cleared when the color picker is closed.
   nodesWithInvalidColorings.value = getNeighboringNodesWithSameColor({
     mapColoring: mapColoring.value,
     neighborGraph,
     lastUpdatedNodeId: selectedNodeEl?.value?.id,
   })
+
+  toggleColorPicker(false)
 }
 
 /**
